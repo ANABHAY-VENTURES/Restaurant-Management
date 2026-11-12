@@ -1,0 +1,28 @@
+name: customer_qr_app
+description: Anabhay Ventures Customer QR Table Ordering Mobile Web App
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  design_system:
+    path: ../../packages/design_system
+  shared_models:
+    path: ../../packages/shared_models
+  shared_services:
+    path: ../../packages/shared_services
+  go_router: ^14.8.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+

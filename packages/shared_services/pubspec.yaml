@@ -1,0 +1,17 @@
+name: shared_services
+description: Anabhay Ventures Restaurant Management Shared Network & Business Services
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  dio: ^5.7.0
+  shared_models:
+    path: ../shared_models
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
+
