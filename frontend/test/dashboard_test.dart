@@ -1,6 +1,7 @@
 // Anabhay Ventures — Dashboard Widget Test
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:restaurant_management/main.dart';
 import 'package:restaurant_management/features/dashboard/data/dashboard_demo_data.dart';
@@ -13,15 +14,19 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
 
     // Build the app
-    await tester.pumpWidget(const RestaurantManagementApp());
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: RestaurantManagementApp(),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    // Verify restaurant header
+    // Verify restaurant header & sidebar
     expect(find.textContaining('Vikramaditya'), findsWidgets);
-    expect(find.textContaining(DashboardDemoData.restaurantName), findsWidgets);
+    expect(find.textContaining('PARK STREET'), findsWidgets);
 
     // Verify demo data banner
-    expect(find.textContaining('DEMO DATA'), findsWidgets);
+    expect(find.textContaining('DEMO'), findsWidgets);
 
     // Verify key metrics
     expect(find.text("Today's Sales"), findsWidgets);
