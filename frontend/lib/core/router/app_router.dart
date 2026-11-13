@@ -1,7 +1,16 @@
 // Anabhay Ventures — Application Router Configuration
+// Phase 1 & Phase 2: Navigation & Authentication Shell
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/presentation/screens/welcome_screen.dart';
+import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/owner_registration_wizard_screen.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/auth/presentation/screens/create_new_password_screen.dart';
+import '../../features/auth/presentation/screens/email_verification_screen.dart';
+import '../../features/staff/presentation/screens/staff_management_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/pos/presentation/screens/pos_billing_screen.dart';
 import '../../features/kitchen/presentation/screens/kds_screen.dart';
@@ -19,7 +28,44 @@ final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
-    // Standalone Customer QR Menu Route (No owner sidebar)
+    // ── Authentication & Onboarding Routes ─────────────────────
+    GoRoute(
+      path: '/welcome',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/register-owner',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OwnerRegistrationWizardScreen(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/verify-otp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const OtpVerificationScreen(),
+    ),
+    GoRoute(
+      path: '/create-new-password',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CreateNewPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/verify-email',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const EmailVerificationScreen(),
+    ),
+
+    // ── Standalone Customer QR Menu Route (No owner sidebar) ───
     GoRoute(
       path: '/qr-menu',
       parentNavigatorKey: _rootNavigatorKey,
@@ -33,7 +79,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Restaurant Operations Shell (Sidebar + Top bar navigation)
+    // ── Restaurant Operations Shell (Sidebar + Top bar) ────────
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
@@ -69,21 +115,16 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const KDSScreen(),
         ),
         GoRoute(
+          path: '/staff',
+          builder: (context, state) => const StaffManagementScreen(),
+        ),
+        GoRoute(
           path: '/purchases',
           builder: (context, state) => const ModulePlaceholderScreen(
             title: 'Purchase & Supplier Management',
             phase: 'Phase 10 Scheduled',
             description: 'Vendor directories, automated purchase orders, goods receipt notes (GRN), and payment tracking.',
             icon: Icons.shopping_cart_outlined,
-          ),
-        ),
-        GoRoute(
-          path: '/staff',
-          builder: (context, state) => const ModulePlaceholderScreen(
-            title: 'Staff & Shift Management',
-            phase: 'Phase 11 Scheduled',
-            description: 'Employee profiles, role-based access, attendance logs, shifts, tips, and performance analytics.',
-            icon: Icons.badge_outlined,
           ),
         ),
         GoRoute(

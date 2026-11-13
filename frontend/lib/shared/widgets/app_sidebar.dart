@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../core/theme/theme.dart';
+import '../../features/auth/presentation/widgets/logout_confirmation_dialog.dart';
 import '../../features/customer_qr/presentation/screens/customer_qr_menu_screen.dart';
 
 class SidebarItem {
@@ -136,6 +137,8 @@ class _AppSidebarState extends State<AppSidebar>
                     ),
                   ),
                 ),
+              // ── Active User Profile & Logout ───────────
+              _buildUserProfile(context),
               // ── Collapse Toggle ────────────────────────
               _buildCollapseButton(),
             ],
@@ -189,6 +192,56 @@ class _AppSidebarState extends State<AppSidebar>
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserProfile(BuildContext context) {
+    if (!widget.isExpanded) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: IconButton(
+          icon: const Icon(Icons.logout_rounded, size: 20, color: AppColors.mutedGrey),
+          tooltip: 'Sign Out',
+          onPressed: () => LogoutConfirmationDialog.show(context),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 14,
+            backgroundColor: AppColors.champagneGold.withValues(alpha: 0.2),
+            child: const Text('V', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text('Vikramaditya Roy', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+                Text('Owner • Main CP', style: TextStyle(fontSize: 10, color: AppColors.champagneGold)),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, size: 16, color: AppColors.textTertiary),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            tooltip: 'Sign Out',
+            onPressed: () => LogoutConfirmationDialog.show(context),
+          ),
         ],
       ),
     );
