@@ -124,48 +124,53 @@ class _KDSScreenState extends ConsumerState<KDSScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.soup_kitchen_rounded, color: AppColors.champagneGold, size: 28),
-            const SizedBox(width: AppSpacing.sm),
-            Text('Kitchen Display System (KDS)', style: AppTypography.headlineSmall),
-            const SizedBox(width: AppSpacing.md),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: activeCount > 0 ? AppColors.copper.withValues(alpha: 0.2) : AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                border: Border.all(color: activeCount > 0 ? AppColors.copper : AppColors.borderSubtle),
-              ),
-              child: Text(
-                '$activeCount Active Orders',
-                style: TextStyle(
-                  color: activeCount > 0 ? AppColors.copper : AppColors.textSecondary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+        Expanded(
+          child: Row(
+            children: [
+              const Icon(Icons.soup_kitchen_rounded, color: AppColors.champagneGold, size: 24),
+              const SizedBox(width: AppSpacing.xs),
+              Flexible(
+                child: Text(
+                  'Kitchen KDS',
+                  style: AppTypography.headlineSmall.copyWith(fontSize: 18),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.xs),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: activeCount > 0 ? AppColors.copper.withValues(alpha: 0.2) : AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                  border: Border.all(color: activeCount > 0 ? AppColors.copper : AppColors.borderSubtle),
+                ),
+                child: Text(
+                  '$activeCount Active',
+                  style: TextStyle(
+                    color: activeCount > 0 ? AppColors.copper : AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                border: Border.all(color: AppColors.borderSubtle),
-              ),
-              child: Row(
-                children: const [
-                  Icon(Icons.wifi_rounded, size: 14, color: AppColors.successGreen),
-                  SizedBox(width: 6),
-                  Text('KDS Live Sync', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          ],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.wifi_rounded, size: 12, color: AppColors.successGreen),
+              SizedBox(width: 4),
+              Text('Live', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
       ],
     );

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:restaurant_management/main.dart';
-import 'package:restaurant_management/features/dashboard/data/dashboard_demo_data.dart';
 
 void main() {
   testWidgets('Dashboard renders header and metric cards', (WidgetTester tester) async {

@@ -19,58 +19,15 @@ class _AppShellState extends State<AppShell> {
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/orders')) return 1;
-    if (location.startsWith('/pos')) return 2;
-    if (location.startsWith('/tables')) return 3;
-    if (location.startsWith('/menu')) return 4;
-    if (location.startsWith('/kitchen')) return 5;
-    if (location.startsWith('/inventory')) return 6;
-    if (location.startsWith('/staff')) return 7;
-    if (location.startsWith('/customers')) return 8;
-    if (location.startsWith('/reports')) return 9;
-    if (location.startsWith('/expenses')) return 10;
-    if (location.startsWith('/settings')) return 11;
-    return 0; // Dashboard
+    final index = AppSidebar.items.indexWhere(
+      (it) => it.route == location || (it.route != '/' && location.startsWith(it.route)),
+    );
+    return index >= 0 ? index : 0;
   }
 
   void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        context.go('/');
-        break;
-      case 1:
-        context.go('/orders');
-        break;
-      case 2:
-        context.go('/pos');
-        break;
-      case 3:
-        context.go('/tables');
-        break;
-      case 4:
-        context.go('/menu');
-        break;
-      case 5:
-        context.go('/kitchen');
-        break;
-      case 6:
-        context.go('/inventory');
-        break;
-      case 7:
-        context.go('/staff');
-        break;
-      case 8:
-        context.go('/customers');
-        break;
-      case 9:
-        context.go('/reports');
-        break;
-      case 10:
-        context.go('/expenses');
-        break;
-      case 11:
-        context.go('/settings');
-        break;
+    if (index >= 0 && index < AppSidebar.items.length) {
+      context.go(AppSidebar.items[index].route);
     }
   }
 

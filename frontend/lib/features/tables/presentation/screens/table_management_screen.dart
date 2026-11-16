@@ -117,20 +117,70 @@ class _TableManagementScreenState extends ConsumerState<TableManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Bar
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact = constraints.maxWidth < 700;
+                if (isCompact) {
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Table Management', style: AppTypography.headlineLarge),
-                      const SizedBox(height: 2),
-                      Text('Visual floor plan • Live occupancy & billing synchronization', style: AppTypography.bodySmall),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Table Management',
+                              style: AppTypography.headlineMedium.copyWith(fontSize: 20),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.champagneGold,
+                              foregroundColor: AppColors.matteBlack,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            ),
+                            onPressed: () => context.go('/qr-codes'),
+                            icon: const Icon(Icons.qr_code_2_rounded, size: 16),
+                            label: const Text('QR Codes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: _buildLegend(),
+                      ),
                     ],
-                  ),
-                ),
-                _buildLegend(),
-              ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Table Management', style: AppTypography.headlineLarge),
+                          const SizedBox(height: 2),
+                          Text('Visual floor plan • Live occupancy & billing synchronization', style: AppTypography.bodySmall),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.champagneGold,
+                        foregroundColor: AppColors.matteBlack,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      ),
+                      onPressed: () => context.go('/qr-codes'),
+                      icon: const Icon(Icons.qr_code_2_rounded, size: 18),
+                      label: const Text('Table QR Codes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    _buildLegend(),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: AppSpacing.md),
 

@@ -203,6 +203,84 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
     final cart = ref.watch(posCartProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 1050;
+    final isMobile = screenWidth < 800;
+
+    if (isMobile) {
+      return Scaffold(
+        backgroundColor: AppColors.matteBlack,
+        body: Padding(
+          padding: const EdgeInsets.all(AppSpacing.base),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTopBar(tables, cart, true),
+              const SizedBox(height: AppSpacing.md),
+              _buildCategoryFilter(),
+              const SizedBox(height: AppSpacing.base),
+              Expanded(child: _buildMenuGrid(menuItems)),
+            ],
+          ),
+        ),
+        bottomNavigationBar: Container(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: AppSpacing.sm),
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceDark,
+            border: Border(top: BorderSide(color: AppColors.borderSubtle)),
+          ),
+          child: SafeArea(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${cart.totalItemCount} items • ${cart.selectedTable}',
+                        style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
+                      ),
+                      Text(
+                        '₹${cart.grandTotal.toStringAsFixed(0)}',
+                        style: AppTypography.titleLarge.copyWith(color: AppColors.champagneGold, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: AppColors.surfaceDark,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusLg)),
+                      ),
+                      builder: (ctx) => DraggableScrollableSheet(
+                        initialChildSize: 0.85,
+                        minChildSize: 0.5,
+                        maxChildSize: 0.95,
+                        expand: false,
+                        builder: (_, scrollController) => SingleChildScrollView(
+                          controller: scrollController,
+                          child: _buildCartPanel(cart),
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.shopping_cart_checkout_rounded, size: 18),
+                  label: const Text('View Cart / Settle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.champagneGold,
+                    foregroundColor: AppColors.matteBlack,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.matteBlack,
@@ -216,7 +294,7 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTopBar(tables, cart),
+                  _buildTopBar(tables, cart, false),
                   const SizedBox(height: AppSpacing.md),
                   _buildCategoryFilter(),
                   const SizedBox(height: AppSpacing.base),
@@ -240,7 +318,94 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
     );
   }
 
-  Widget _buildTopBar(List<RestaurantTable> tables, PosCartState cart) {
+  Widget _buildTopBar(List<RestaurantTable> tables, PosCartState cart, bool isMobile) {
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppTextField(
+            hintText: 'Search dishes, biryani, naan, tandoori...',
+            prefixIcon: Icons.search_rounded,
+            onChanged: (val) => setState(() => _searchQuery = val),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<OrderType>(
+                      isExpanded: true,
+                      value: cart.orderType,
+                      dropdownColor: AppColors.surfaceElevated,
+                      style: AppTypography.labelMedium.copyWith(color: AppColors.champagneGold, fontWeight: FontWeight.bold),
+                      items: OrderType.values.map((type) {
+                        return DropdownMenuItem(value: type, child: Text(type.label));
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          ref.read(posCartProvider.notifier).setOrderType(val);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              if (cart.orderType == OrderType.dineIn) ...[
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      border: Border.all(
+                        color: cart.activeExistingOrderId != null ? AppColors.warningAmber : AppColors.borderSubtle,
+                      ),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: tables.any((t) => t.number == cart.selectedTable) ? cart.selectedTable : tables.first.number,
+                        dropdownColor: AppColors.surfaceElevated,
+                        style: AppTypography.labelMedium.copyWith(color: AppColors.warmIvory),
+                        items: tables.map((t) {
+                          final isOcc = t.status == TableStatus.occupied;
+                          final isBilled = t.status == TableStatus.billed;
+                          final badge = isOcc ? ' (Occ)' : (isBilled ? ' (Bill)' : '');
+                          return DropdownMenuItem(
+                            value: t.number,
+                            child: Text(
+                              '${t.number}$badge',
+                              style: TextStyle(
+                                color: isOcc ? AppColors.copper : (isBilled ? AppColors.champagneGold : AppColors.warmIvory),
+                                fontWeight: t.number == cart.selectedTable ? FontWeight.bold : FontWeight.normal,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            ref.read(posCartProvider.notifier).setSelectedTable(val);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      );
+    }
     return Row(
       children: [
         // Search bar

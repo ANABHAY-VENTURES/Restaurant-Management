@@ -7,6 +7,8 @@ import 'package:restaurant_management/core/theme/theme.dart';
 import 'package:restaurant_management/shared/widgets/widgets.dart';
 import 'package:restaurant_management/features/dashboard/data/dashboard_demo_data.dart';
 import 'package:restaurant_management/features/pos/presentation/providers/pos_providers.dart';
+import 'package:restaurant_management/features/settings/domain/models/settings_models.dart';
+import 'package:restaurant_management/features/settings/presentation/providers/settings_providers.dart';
 import '../widgets/sales_chart.dart';
 import '../widgets/kitchen_queue_card.dart';
 import '../widgets/best_sellers_table.dart';
@@ -18,6 +20,7 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final liveMetrics = ref.watch(dashboardMetricsProvider);
+    final profile = ref.watch(restaurantProfileProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 1100;
     final isTablet = screenWidth >= 720 && screenWidth < 1100;
@@ -30,7 +33,7 @@ class DashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Header ───────────────────────────────────
-            _buildHeader(context),
+            _buildHeader(context, profile),
             const SizedBox(height: AppSpacing.xl),
 
             // ── DEMO NOTICE ──────────────────────────────
@@ -104,36 +107,44 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, RestaurantProfile profile) {
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Restaurant Management',
-              style: AppTypography.headlineLarge.copyWith(fontSize: 24),
-            ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                Text(
-                  'PARK STREET FLAGSHIP',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.champagneGold,
-                    letterSpacing: 1.5,
-                    fontWeight: FontWeight.w700,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                profile.name.isNotEmpty ? profile.name : 'Restaurant Management',
+                style: AppTypography.headlineLarge.copyWith(fontSize: 22),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      profile.tagline.isNotEmpty ? profile.tagline.toUpperCase() : 'PARK STREET FLAGSHIP',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.champagneGold,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Text(
-                  ' • Live Operations',
-                  style: AppTypography.labelSmall.copyWith(color: AppColors.textTertiary),
-                ),
-              ],
-            ),
-          ],
+                  Text(
+                    ' • Live Operations',
+                    style: AppTypography.labelSmall.copyWith(color: AppColors.textTertiary),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        const Spacer(),
+        const SizedBox(width: AppSpacing.sm),
         // Quick user avatar
         Container(
           width: 36,

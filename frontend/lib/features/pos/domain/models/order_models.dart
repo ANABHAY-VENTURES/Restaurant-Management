@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_management/core/theme/theme.dart';
 import 'package:restaurant_management/shared/widgets/status_badge.dart';
+import 'package:restaurant_management/features/inventory/domain/models/inventory_models.dart';
 
 // ── Order Status & Enums ────────────────────────────────────────────────────
 
@@ -174,9 +175,13 @@ class MenuItem {
   final String name;
   final String category;
   final double basePrice;
+  final double foodCost;
+  final DietaryType dietaryType;
   final bool isVeg;
   final String description;
+  final int prepTimeMinutes;
   final bool isAvailable;
+  final bool isFeatured;
   final List<ItemVariant> variants;
   final List<ItemAddOn> addOns;
 
@@ -185,21 +190,64 @@ class MenuItem {
     required this.name,
     required this.category,
     required this.basePrice,
+    this.foodCost = 0.0,
+    DietaryType? dietaryType,
     required this.isVeg,
     this.description = '',
+    this.prepTimeMinutes = 15,
     this.isAvailable = true,
+    this.isFeatured = false,
     this.variants = const [],
     this.addOns = const [],
-  });
+  }) : dietaryType = dietaryType ?? (isVeg ? DietaryType.veg : DietaryType.nonVeg);
+
+  double get grossProfit => basePrice - foodCost;
+  double get profitMarginPercent => basePrice > 0 ? ((basePrice - foodCost) / basePrice) * 100 : 0.0;
+
+  MenuItem copyWith({
+    String? id,
+    String? name,
+    String? category,
+    double? basePrice,
+    double? foodCost,
+    DietaryType? dietaryType,
+    bool? isVeg,
+    String? description,
+    int? prepTimeMinutes,
+    bool? isAvailable,
+    bool? isFeatured,
+    List<ItemVariant>? variants,
+    List<ItemAddOn>? addOns,
+  }) {
+    return MenuItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      basePrice: basePrice ?? this.basePrice,
+      foodCost: foodCost ?? this.foodCost,
+      dietaryType: dietaryType ?? this.dietaryType,
+      isVeg: isVeg ?? (dietaryType != null ? dietaryType == DietaryType.veg : this.isVeg),
+      description: description ?? this.description,
+      prepTimeMinutes: prepTimeMinutes ?? this.prepTimeMinutes,
+      isAvailable: isAvailable ?? this.isAvailable,
+      isFeatured: isFeatured ?? this.isFeatured,
+      variants: variants ?? this.variants,
+      addOns: addOns ?? this.addOns,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'category': category,
         'basePrice': basePrice,
+        'foodCost': foodCost,
+        'dietaryType': dietaryType.name,
         'isVeg': isVeg,
         'description': description,
+        'prepTimeMinutes': prepTimeMinutes,
         'isAvailable': isAvailable,
+        'isFeatured': isFeatured,
         'variants': variants.map((v) => v.toJson()).toList(),
         'addOns': addOns.map((a) => a.toJson()).toList(),
       };
@@ -209,9 +257,15 @@ class MenuItem {
         name: json['name'] as String,
         category: json['category'] as String,
         basePrice: (json['basePrice'] as num).toDouble(),
+        foodCost: (json['foodCost'] as num?)?.toDouble() ?? 0.0,
+        dietaryType: json['dietaryType'] != null
+            ? DietaryType.fromString(json['dietaryType'] as String)
+            : (json['isVeg'] as bool? ?? true ? DietaryType.veg : DietaryType.nonVeg),
         isVeg: json['isVeg'] as bool? ?? true,
         description: json['description'] as String? ?? '',
+        prepTimeMinutes: json['prepTimeMinutes'] as int? ?? 15,
         isAvailable: json['isAvailable'] as bool? ?? true,
+        isFeatured: json['isFeatured'] as bool? ?? false,
         variants: (json['variants'] as List<dynamic>?)
                 ?.map((v) => ItemVariant.fromJson(v as Map<String, dynamic>))
                 .toList() ??
@@ -335,6 +389,7 @@ class RestaurantOrder {
   final String? paymentMethod; // 'Demo Cash', 'Demo UPI', 'Demo Card'
   final String? generalInstructions;
   final String? invoiceNumber;
+  final bool hasInventoryDeducted;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -360,6 +415,7 @@ class RestaurantOrder {
     this.paymentMethod,
     this.generalInstructions,
     this.invoiceNumber,
+    this.hasInventoryDeducted = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -386,6 +442,7 @@ class RestaurantOrder {
     String? paymentMethod,
     String? generalInstructions,
     String? invoiceNumber,
+    bool? hasInventoryDeducted,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -411,6 +468,7 @@ class RestaurantOrder {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       generalInstructions: generalInstructions ?? this.generalInstructions,
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+      hasInventoryDeducted: hasInventoryDeducted ?? this.hasInventoryDeducted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -438,6 +496,7 @@ class RestaurantOrder {
         'paymentMethod': paymentMethod,
         'generalInstructions': generalInstructions,
         'invoiceNumber': invoiceNumber,
+        'hasInventoryDeducted': hasInventoryDeducted,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
       };
@@ -467,6 +526,7 @@ class RestaurantOrder {
         paymentMethod: json['paymentMethod'] as String?,
         generalInstructions: json['generalInstructions'] as String?,
         invoiceNumber: json['invoiceNumber'] as String?,
+        hasInventoryDeducted: json['hasInventoryDeducted'] as bool? ?? false,
         createdAt: DateTime.parse(json['createdAt'] as String),
         updatedAt: DateTime.parse(json['updatedAt'] as String),
       );

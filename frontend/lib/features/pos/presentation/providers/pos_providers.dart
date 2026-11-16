@@ -4,12 +4,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/restaurant_storage_repository.dart';
 import '../../domain/models/order_models.dart';
+import '../../../inventory/domain/models/inventory_models.dart';
+import '../../../inventory/presentation/providers/inventory_providers.dart';
+import '../../../customers/presentation/providers/customer_providers.dart';
+import 'package:restaurant_management/features/settings/presentation/providers/settings_providers.dart';
 
 // ── Repository Provider ─────────────────────────────────────────────────────
 
 final restaurantRepositoryProvider = Provider<RestaurantStorageRepository>((ref) {
   return RestaurantStorageRepository();
 });
+
+final restaurantStorageRepositoryProvider = restaurantRepositoryProvider;
 
 // ── Menu Items Provider ─────────────────────────────────────────────────────
 
@@ -28,6 +34,40 @@ class MenuItemsNotifier extends StateNotifier<List<MenuItem>> {
   Future<void> _load() async {
     final items = await _repo.loadMenuItems();
     state = items;
+  }
+
+  void addMenuItem(MenuItem item) {
+    state = [...state, item];
+    _repo.saveMenuItems(state);
+  }
+
+  void updateMenuItem(MenuItem updated) {
+    state = [
+      for (final item in state)
+        if (item.id == updated.id) updated else item,
+    ];
+    _repo.saveMenuItems(state);
+  }
+
+  void deleteMenuItem(String id) {
+    state = state.where((item) => item.id != id).toList();
+    _repo.saveMenuItems(state);
+  }
+
+  void toggleAvailability(String id) {
+    state = [
+      for (final item in state)
+        if (item.id == id) item.copyWith(isAvailable: !item.isAvailable) else item,
+    ];
+    _repo.saveMenuItems(state);
+  }
+
+  void updatePrice(String id, double newPrice) {
+    state = [
+      for (final item in state)
+        if (item.id == id) item.copyWith(basePrice: newPrice) else item,
+    ];
+    _repo.saveMenuItems(state);
   }
 }
 
@@ -140,15 +180,20 @@ class OrdersNotifier extends StateNotifier<List<RestaurantOrder>> {
   }) {
     final now = DateTime.now();
     final count = state.length + 101;
-    final orderId = 'ORD-2026-$count';
-    final kotNumber = 'KOT-$count';
+    final orderPosConfig = _ref.read(orderPosConfigProvider);
+    final taxConfig = _ref.read(taxBillingConfigProvider);
 
-    // Calculate financials
+    final orderId = '${orderPosConfig.orderPrefix}2026-$count';
+    final kotNumber = '${orderPosConfig.kotPrefix}$count';
+
+    // Calculate financials using dynamic tax configuration
     final subtotal = items.fold(0.0, (sum, i) => sum + i.totalPrice);
     final disc = discountAmount > 0 ? discountAmount : (subtotal * (discountPercent / 100));
     final taxable = (subtotal - disc).clamp(0.0, double.infinity);
-    final cgst = taxable * 0.025; // 2.5% CGST
-    final sgst = taxable * 0.025; // 2.5% SGST
+    final cgstRate = taxConfig.isGstEnabled ? (taxConfig.taxRatePercent / 200.0) : 0.0;
+    final sgstRate = taxConfig.isGstEnabled ? (taxConfig.taxRatePercent / 200.0) : 0.0;
+    final cgst = taxable * cgstRate;
+    final sgst = taxable * sgstRate;
     final grandTotal = taxable + cgst + sgst;
 
     final newOrder = RestaurantOrder(
@@ -162,12 +207,15 @@ class OrdersNotifier extends StateNotifier<List<RestaurantOrder>> {
       subtotal: subtotal,
       discountPercent: discountPercent,
       discountAmount: disc,
+      cgstRate: cgstRate,
+      sgstRate: sgstRate,
       cgstAmount: cgst,
       sgstAmount: sgst,
       grandTotal: grandTotal,
       orderStatus: OrderStatus.newOrder,
       paymentStatus: PaymentStatus.pending,
       generalInstructions: generalInstructions,
+      hasInventoryDeducted: true,
       createdAt: now,
       updatedAt: now,
     );
@@ -175,12 +223,94 @@ class OrdersNotifier extends StateNotifier<List<RestaurantOrder>> {
     state = [newOrder, ...state];
     _repo.saveOrders(state);
 
+    // Automatic recipe inventory deduction!
+    _deductRecipeInventory(newOrder);
+
     // If dine in, link & occupy table
     if (orderType == OrderType.dineIn) {
       _ref.read(tablesProvider.notifier).occupyTable(tableNumber, orderId, grandTotal);
     }
 
     return newOrder;
+  }
+
+  void _deductRecipeInventory(RestaurantOrder order) {
+    final recipes = _ref.read(recipesProvider);
+    final ingredientsNotifier = _ref.read(ingredientsProvider.notifier);
+
+    for (final item in order.items) {
+      final recipeIndex = recipes.indexWhere((r) => r.menuItemId == item.menuItemId);
+      if (recipeIndex >= 0) {
+        final recipe = recipes[recipeIndex];
+        for (final recIng in recipe.ingredients) {
+          double qtyToDeduct = recIng.quantity * item.quantity;
+          if (recIng.unit == InventoryUnit.g) {
+            qtyToDeduct = qtyToDeduct / 1000.0;
+          } else if (recIng.unit == InventoryUnit.ml) {
+            qtyToDeduct = qtyToDeduct / 1000.0;
+          }
+
+          ingredientsNotifier.adjustStock(
+            ingredientId: recIng.ingredientId,
+            deltaQuantity: -qtyToDeduct,
+            type: StockMovementType.orderDeduction,
+            reason: '${item.quantity}× ${item.name} (${order.tableNumber})',
+            referenceId: order.id,
+          );
+        }
+      }
+    }
+  }
+
+  void cancelOrder(String orderId) {
+    final orderIndex = state.indexWhere((o) => o.id == orderId);
+    if (orderIndex < 0) return;
+    final order = state[orderIndex];
+
+    if (order.hasInventoryDeducted) {
+      final recipes = _ref.read(recipesProvider);
+      final ingredientsNotifier = _ref.read(ingredientsProvider.notifier);
+
+      for (final item in order.items) {
+        final recipeIndex = recipes.indexWhere((r) => r.menuItemId == item.menuItemId);
+        if (recipeIndex >= 0) {
+          final recipe = recipes[recipeIndex];
+          for (final recIng in recipe.ingredients) {
+            double qtyToAdd = recIng.quantity * item.quantity;
+            if (recIng.unit == InventoryUnit.g) {
+              qtyToAdd = qtyToAdd / 1000.0;
+            } else if (recIng.unit == InventoryUnit.ml) {
+              qtyToAdd = qtyToAdd / 1000.0;
+            }
+
+            ingredientsNotifier.adjustStock(
+              ingredientId: recIng.ingredientId,
+              deltaQuantity: qtyToAdd,
+              type: StockMovementType.orderReversal,
+              reason: 'Reversal: Order ${order.id} cancelled',
+              referenceId: order.id,
+            );
+          }
+        }
+      }
+    }
+
+    state = [
+      for (final o in state)
+        if (o.id == orderId)
+          o.copyWith(
+            orderStatus: OrderStatus.cancelled,
+            hasInventoryDeducted: false,
+            updatedAt: DateTime.now(),
+          )
+        else
+          o,
+    ];
+    _repo.saveOrders(state);
+
+    if (order.orderType == OrderType.dineIn) {
+      _ref.read(tablesProvider.notifier).releaseTable(order.tableNumber);
+    }
   }
 
   /// Update Kitchen Status: newOrder -> preparing -> ready -> served -> completed
@@ -259,7 +389,8 @@ class OrdersNotifier extends StateNotifier<List<RestaurantOrder>> {
       throw Exception('Order $orderId not found');
     }
     final order = state[orderIndex];
-    final invoiceNumber = 'INV-2026-${DateTime.now().millisecondsSinceEpoch % 10000}';
+    final invoiceConfig = _ref.read(invoiceReceiptConfigProvider);
+    final invoiceNumber = '${invoiceConfig.invoicePrefix}${DateTime.now().millisecondsSinceEpoch % 10000}';
 
     final updatedOrder = order.copyWith(
       paymentStatus: PaymentStatus.paid,
@@ -298,7 +429,43 @@ class OrdersNotifier extends StateNotifier<List<RestaurantOrder>> {
 
     _ref.read(invoicesProvider.notifier).addInvoice(invoice);
 
+    // Update Customer CRM & loyalty points if customer phone exists
+    if (order.customerPhone != null && order.customerPhone!.isNotEmpty) {
+      _ref.read(customersProvider.notifier).addOrUpdateFromOrder(
+            name: order.customerName ?? 'Guest Patron',
+            phone: order.customerPhone!,
+            orderAmount: order.grandTotal,
+            orderId: order.id,
+          );
+    }
+
     return invoice;
+  }
+
+  /// Record payment for an order (e.g. Demo UPI / Demo Cash)
+  void recordPayment({required String orderId, required String method, required double amount}) {
+    state = [
+      for (final o in state)
+        if (o.id == orderId)
+          o.copyWith(
+            paymentStatus: PaymentStatus.paid,
+            paymentMethod: method,
+            updatedAt: DateTime.now(),
+          )
+        else
+          o,
+    ];
+    _repo.saveOrders(state);
+
+    final order = state.firstWhere((o) => o.id == orderId, orElse: () => state.first);
+    if (order.customerPhone != null && order.customerPhone!.isNotEmpty) {
+      _ref.read(customersProvider.notifier).addOrUpdateFromOrder(
+            name: order.customerName ?? 'Guest Patron',
+            phone: order.customerPhone!,
+            orderAmount: amount,
+            orderId: order.id,
+          );
+    }
   }
 }
 
@@ -574,6 +741,7 @@ class DashboardMetrics {
   final int totalOrders;
   final int activeTablesCount;
   final int kitchenQueueCount;
+  final int lowStockAlertCount;
   final List<RestaurantOrder> activeKitchenTickets;
   final List<Invoice> recentTransactions;
 
@@ -582,6 +750,7 @@ class DashboardMetrics {
     required this.totalOrders,
     required this.activeTablesCount,
     required this.kitchenQueueCount,
+    required this.lowStockAlertCount,
     required this.activeKitchenTickets,
     required this.recentTransactions,
   });
@@ -591,6 +760,7 @@ final dashboardMetricsProvider = Provider<DashboardMetrics>((ref) {
   final orders = ref.watch(ordersProvider);
   final tables = ref.watch(tablesProvider);
   final invoices = ref.watch(invoicesProvider);
+  final ingredients = ref.watch(ingredientsProvider);
 
   // Today sales from all paid invoices (base demo ₹1,48,250 + live new invoices)
   const baseSales = 148250.0;
@@ -606,11 +776,15 @@ final dashboardMetricsProvider = Provider<DashboardMetrics>((ref) {
   // Kitchen queue: orders in newOrder or preparing state
   final activeKitchenTickets = orders.where((o) => o.orderStatus == OrderStatus.newOrder || o.orderStatus == OrderStatus.preparing).toList();
 
+  // Low stock alert count
+  final lowStockAlertCount = ingredients.where((i) => i.isLowStock || i.isOutOfStock).length;
+
   return DashboardMetrics(
     todaySales: todaySales,
     totalOrders: totalOrders,
     activeTablesCount: activeTablesCount,
     kitchenQueueCount: activeKitchenTickets.length,
+    lowStockAlertCount: lowStockAlertCount,
     activeKitchenTickets: activeKitchenTickets,
     recentTransactions: invoices,
   );

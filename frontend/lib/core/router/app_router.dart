@@ -18,6 +18,11 @@ import '../../features/tables/presentation/screens/table_management_screen.dart'
 import '../../features/menu/presentation/screens/menu_management_screen.dart';
 import '../../features/inventory/presentation/screens/inventory_screen.dart';
 import '../../features/customer_qr/presentation/screens/customer_qr_menu_screen.dart';
+import '../../features/customer_qr/presentation/screens/customer_order_tracking_screen.dart';
+import '../../features/customer_qr/presentation/screens/qr_management_screen.dart';
+import '../../features/customers/presentation/screens/customer_management_screen.dart';
+import '../../features/reports/presentation/screens/reports_analytics_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../../shared/widgets/module_placeholder_screen.dart';
 
@@ -78,6 +83,13 @@ final GoRouter appRouter = GoRouter(
         tableNumber: state.pathParameters['table'] ?? 'Table 04',
       ),
     ),
+    GoRoute(
+      path: '/track-order/:orderId',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => CustomerOrderTrackingScreen(
+        orderId: state.pathParameters['orderId'] ?? '',
+      ),
+    ),
 
     // ── Restaurant Operations Shell (Sidebar + Top bar) ────────
     ShellRoute(
@@ -103,6 +115,10 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const TableManagementScreen(),
         ),
         GoRoute(
+          path: '/qr-codes',
+          builder: (context, state) => const QRManagementScreen(),
+        ),
+        GoRoute(
           path: '/menu',
           builder: (context, state) => const MenuManagementScreen(),
         ),
@@ -120,30 +136,15 @@ final GoRouter appRouter = GoRouter(
         ),
         GoRoute(
           path: '/purchases',
-          builder: (context, state) => const ModulePlaceholderScreen(
-            title: 'Purchase & Supplier Management',
-            phase: 'Phase 10 Scheduled',
-            description: 'Vendor directories, automated purchase orders, goods receipt notes (GRN), and payment tracking.',
-            icon: Icons.shopping_cart_outlined,
-          ),
+          builder: (context, state) => const InventoryScreen(),
         ),
         GoRoute(
           path: '/customers',
-          builder: (context, state) => const ModulePlaceholderScreen(
-            title: 'Customer Relationship & Loyalty',
-            phase: 'Phase 11 Scheduled',
-            description: 'Customer profiles, order frequency, loyalty reward points, coupons, and feedback collection.',
-            icon: Icons.favorite_border_rounded,
-          ),
+          builder: (context, state) => const CustomerManagementScreen(),
         ),
         GoRoute(
           path: '/reports',
-          builder: (context, state) => const ModulePlaceholderScreen(
-            title: 'Analytics & Financial Reports',
-            phase: 'Phase 13 Scheduled',
-            description: 'Sales summaries, tax reports, food cost calculation, wastage reports, and PDF/Excel exports.',
-            icon: Icons.bar_chart_rounded,
-          ),
+          builder: (context, state) => const ReportsAnalyticsScreen(),
         ),
         GoRoute(
           path: '/expenses',
@@ -156,12 +157,7 @@ final GoRouter appRouter = GoRouter(
         ),
         GoRoute(
           path: '/settings',
-          builder: (context, state) => const ModulePlaceholderScreen(
-            title: 'Restaurant & System Settings',
-            phase: 'Phase 4 & 5 Scheduled',
-            description: 'Branch profiles, taxation settings, receipt header customisation, printer bridges, and user roles.',
-            icon: Icons.tune_rounded,
-          ),
+          builder: (context, state) => const SettingsScreen(),
         ),
       ],
     ),

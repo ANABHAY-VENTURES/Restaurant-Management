@@ -150,5 +150,106 @@ class AppTheme {
       ),
     );
   }
+
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      fontFamily: 'Inter',
+
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.champagneGold,
+        onPrimary: AppColors.matteBlack,
+        primaryContainer: AppColors.copper,
+        secondary: AppColors.copper,
+        onSecondary: Colors.white,
+        surface: Colors.white,
+        onSurface: AppColors.matteBlack,
+        error: AppColors.errorRed,
+        onError: Colors.white,
+        outline: Color(0xFFE2D9CC),
+      ),
+
+      scaffoldBackgroundColor: const Color(0xFFF9F6F0),
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: AppTypography.headlineMedium,
+        iconTheme: IconThemeData(color: AppColors.matteBlack, size: 22),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+      ),
+
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFE2D9CC), width: 1),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFFE2D9CC),
+        thickness: 1,
+        space: 1,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.champagneGold,
+          foregroundColor: AppColors.matteBlack,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: AppTypography.labelLarge.copyWith(
+            color: AppColors.matteBlack,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.champagneGold,
+          side: const BorderSide(color: AppColors.champagneGold, width: 1.2),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: AppTypography.labelLarge,
+        ),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFFF4EFE6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2D9CC)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2D9CC)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.champagneGold, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.errorRed),
+        ),
+        labelStyle: AppTypography.bodyMedium.copyWith(color: AppColors.matteBlack),
+        hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+      ),
+    );
+  }
 }
 

@@ -25,6 +25,21 @@ class AppSidebar extends StatefulWidget {
   final bool isExpanded;
   final VoidCallback onToggle;
 
+  static const List<SidebarItem> items = [
+    SidebarItem(label: 'Dashboard', icon: Icons.dashboard_rounded, route: '/'),
+    SidebarItem(label: 'POS Billing', icon: Icons.point_of_sale_rounded, route: '/pos'),
+    SidebarItem(label: 'Orders & KOT', icon: Icons.soup_kitchen_outlined, route: '/kitchen'),
+    SidebarItem(label: 'Tables', icon: Icons.table_restaurant_outlined, route: '/tables'),
+    SidebarItem(label: 'Table QRs', icon: Icons.qr_code_2_rounded, route: '/qr-codes'),
+    SidebarItem(label: 'Menu', icon: Icons.restaurant_menu_rounded, route: '/menu'),
+    SidebarItem(label: 'Inventory', icon: Icons.inventory_2_outlined, route: '/inventory'),
+    SidebarItem(label: 'Purchases', icon: Icons.shopping_cart_outlined, route: '/purchases'),
+    SidebarItem(label: 'Staff', icon: Icons.badge_outlined, route: '/staff'),
+    SidebarItem(label: 'Customers', icon: Icons.favorite_border_rounded, route: '/customers'),
+    SidebarItem(label: 'Reports', icon: Icons.bar_chart_rounded, route: '/reports'),
+    SidebarItem(label: 'Settings', icon: Icons.tune_rounded, route: '/settings'),
+  ];
+
   const AppSidebar({
     super.key,
     required this.selectedIndex,
@@ -41,20 +56,6 @@ class _AppSidebarState extends State<AppSidebar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   late final Animation<double> _widthAnim;
-
-  static const List<SidebarItem> items = [
-    SidebarItem(label: 'Dashboard', icon: Icons.dashboard_rounded, route: '/'),
-    SidebarItem(label: 'POS Billing', icon: Icons.point_of_sale_rounded, route: '/pos'),
-    SidebarItem(label: 'Orders & KOT', icon: Icons.soup_kitchen_outlined, route: '/kitchen'),
-    SidebarItem(label: 'Tables', icon: Icons.table_restaurant_outlined, route: '/tables'),
-    SidebarItem(label: 'Menu', icon: Icons.restaurant_menu_rounded, route: '/menu'),
-    SidebarItem(label: 'Inventory', icon: Icons.inventory_2_outlined, route: '/inventory'),
-    SidebarItem(label: 'Purchases', icon: Icons.shopping_cart_outlined, route: '/purchases'),
-    SidebarItem(label: 'Staff', icon: Icons.badge_outlined, route: '/staff'),
-    SidebarItem(label: 'Customers', icon: Icons.favorite_border_rounded, route: '/customers'),
-    SidebarItem(label: 'Reports', icon: Icons.bar_chart_rounded, route: '/reports'),
-    SidebarItem(label: 'Settings', icon: Icons.tune_rounded, route: '/settings'),
-  ];
 
   @override
   void initState() {
@@ -107,9 +108,9 @@ class _AppSidebarState extends State<AppSidebar>
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-                  itemCount: items.length,
+                  itemCount: AppSidebar.items.length,
                   itemBuilder: (context, index) {
-                    final item = items[index];
+                    final item = AppSidebar.items[index];
                     final selected = index == widget.selectedIndex;
                     return _NavTile(
                       item: item,
@@ -133,7 +134,7 @@ class _AppSidebarState extends State<AppSidebar>
                     icon: const Icon(Icons.qr_code_2_rounded, size: 16),
                     label: const Text('Customer QR', style: TextStyle(fontSize: 12)),
                     onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const CustomerQRMenuScreen()),
+                      MaterialPageRoute(builder: (_) => CustomerQRMenuScreen()),
                     ),
                   ),
                 ),
