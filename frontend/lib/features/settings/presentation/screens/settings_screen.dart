@@ -475,42 +475,78 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
               const SizedBox(height: 24),
 
               // Form fields
-              Row(
-                children: [
-                  Expanded(child: TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Restaurant Name *'))),
-                  const SizedBox(width: 16),
-                  Expanded(child: TextField(controller: _taglineCtrl, decoration: const InputDecoration(labelText: 'Culinary Tagline / Cuisine'))),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'Full Physical Address *')),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(child: TextField(controller: _phoneCtrl, decoration: const InputDecoration(labelText: 'Contact Phone Number *'))),
-                  const SizedBox(width: 16),
-                  Expanded(child: TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Official Email *'))),
-                  const SizedBox(width: 16),
-                  Expanded(child: TextField(controller: _websiteCtrl, decoration: const InputDecoration(labelText: 'Website / Web Menu URL'))),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(child: TextField(controller: _gstinCtrl, decoration: const InputDecoration(labelText: 'GSTIN Registration (Optional)'))),
-                  const SizedBox(width: 16),
-                  Expanded(child: TextField(controller: _fssaiCtrl, decoration: const InputDecoration(labelText: 'FSSAI License No. (Optional)'))),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(child: TextField(controller: _openTimeCtrl, decoration: const InputDecoration(labelText: 'Daily Opening Hours (e.g. 11:00 AM)'))),
-                  const SizedBox(width: 16),
-                  Expanded(child: TextField(controller: _closeTimeCtrl, decoration: const InputDecoration(labelText: 'Closing Hours (e.g. 11:30 PM)'))),
-                  const SizedBox(width: 16),
-                  Expanded(child: TextField(controller: _closingDayCtrl, decoration: const InputDecoration(labelText: 'Weekly Closing Day (e.g. Open 7 Days)'))),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 650;
+                  if (isNarrow) {
+                    return Column(
+                      children: [
+                        TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Restaurant Name *')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _taglineCtrl, decoration: const InputDecoration(labelText: 'Culinary Tagline / Cuisine')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'Full Physical Address *')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _phoneCtrl, decoration: const InputDecoration(labelText: 'Contact Phone Number *')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Official Email *')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _websiteCtrl, decoration: const InputDecoration(labelText: 'Website / Web Menu URL')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _gstinCtrl, decoration: const InputDecoration(labelText: 'GSTIN Registration (Optional)')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _fssaiCtrl, decoration: const InputDecoration(labelText: 'FSSAI License No. (Optional)')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _openTimeCtrl, decoration: const InputDecoration(labelText: 'Daily Opening Hours (e.g. 11:00 AM)')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _closeTimeCtrl, decoration: const InputDecoration(labelText: 'Closing Hours (e.g. 11:30 PM)')),
+                        const SizedBox(height: 16),
+                        TextField(controller: _closingDayCtrl, decoration: const InputDecoration(labelText: 'Weekly Closing Day (e.g. Open 7 Days)')),
+                      ],
+                    );
+                  }
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Restaurant Name *'))),
+                          const SizedBox(width: 16),
+                          Expanded(child: TextField(controller: _taglineCtrl, decoration: const InputDecoration(labelText: 'Culinary Tagline / Cuisine'))),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'Full Physical Address *')),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(child: TextField(controller: _phoneCtrl, decoration: const InputDecoration(labelText: 'Contact Phone Number *'))),
+                          const SizedBox(width: 16),
+                          Expanded(child: TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Official Email *'))),
+                          const SizedBox(width: 16),
+                          Expanded(child: TextField(controller: _websiteCtrl, decoration: const InputDecoration(labelText: 'Website / Web Menu URL'))),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(child: TextField(controller: _gstinCtrl, decoration: const InputDecoration(labelText: 'GSTIN Registration (Optional)'))),
+                          const SizedBox(width: 16),
+                          Expanded(child: TextField(controller: _fssaiCtrl, decoration: const InputDecoration(labelText: 'FSSAI License No. (Optional)'))),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(child: TextField(controller: _openTimeCtrl, decoration: const InputDecoration(labelText: 'Daily Opening Hours (e.g. 11:00 AM)'))),
+                          const SizedBox(width: 16),
+                          Expanded(child: TextField(controller: _closeTimeCtrl, decoration: const InputDecoration(labelText: 'Closing Hours (e.g. 11:30 PM)'))),
+                          const SizedBox(width: 16),
+                          Expanded(child: TextField(controller: _closingDayCtrl, decoration: const InputDecoration(labelText: 'Weekly Closing Day (e.g. Open 7 Days)'))),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 16),
               TextField(
@@ -567,7 +603,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
               // Presets
               const Text('Indian Restaurant GST Presets:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(height: 8),
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   ChoiceChip(
                     label: const Text('5.0% Composite (2.5% CGST + 2.5% SGST)'),
@@ -583,7 +621,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                       ref.read(taxBillingConfigProvider.notifier).updateConfig(tax.copyWith(taxRatePercent: 5.0));
                     },
                   ),
-                  const SizedBox(width: 8),
                   ChoiceChip(
                     label: const Text('12.0% GST'),
                     selected: tax.taxRatePercent == 12.0,
@@ -598,7 +635,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                       ref.read(taxBillingConfigProvider.notifier).updateConfig(tax.copyWith(taxRatePercent: 12.0));
                     },
                   ),
-                  const SizedBox(width: 8),
                   ChoiceChip(
                     label: const Text('18.0% GST'),
                     selected: tax.taxRatePercent == 18.0,
@@ -656,73 +692,83 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
   }
 
   Widget _buildReceiptsTab(RestaurantProfile profile, TaxBillingConfig taxBilling, InvoiceReceiptConfig inv) {
-    return ListView(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 800;
+        final leftControls = Container(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceCard,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Receipt Layout & Header Details', style: AppTypography.titleMedium),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.champagneGold, foregroundColor: AppColors.matteBlack),
+                    onPressed: _saveReceiptConfig,
+                    icon: const Icon(Icons.save_rounded, size: 16),
+                    label: const Text('Save Template'),
+                  ),
+                ],
+              ),
+              const Divider(color: AppColors.borderSubtle, height: 20),
+
+              TextField(controller: _invoiceTitleCtrl, decoration: const InputDecoration(labelText: 'Bill / Receipt Title (e.g. TAX INVOICE)')),
+              const SizedBox(height: 12),
+              TextField(controller: _prefixCtrl, decoration: const InputDecoration(labelText: 'Invoice Serial Prefix (e.g. INV-2026-)')),
+              const SizedBox(height: 12),
+              TextField(controller: _thankYouCtrl, decoration: const InputDecoration(labelText: 'Thank You Message')),
+              const SizedBox(height: 12),
+              TextField(controller: _footerMsgCtrl, decoration: const InputDecoration(labelText: 'Footer Legal Note / Policy')),
+              const SizedBox(height: 16),
+
+              const Text('Content Visibility Toggles:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+              _buildReceiptSwitch('Show Restaurant Logo', inv.showLogo, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showLogo: v))),
+              _buildReceiptSwitch('Show Restaurant Name', inv.showRestaurantName, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showRestaurantName: v))),
+              _buildReceiptSwitch('Show Address & Telephone', inv.showAddressContact, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showAddressContact: v))),
+              _buildReceiptSwitch('Show GSTIN Registration', inv.showGstin, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showGstin: v))),
+              _buildReceiptSwitch('Show FSSAI License Number', inv.showFssai, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showFssai: v))),
+              _buildReceiptSwitch('Show Customer Name & Phone', inv.showCustomerDetails, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showCustomerDetails: v))),
+              _buildReceiptSwitch('Show Itemised Tax Breakdown', inv.showTaxBreakdown, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showTaxBreakdown: v))),
+            ],
+          ),
+        );
+
+        final rightPreview = LiveReceiptPreview(
+          profile: profile,
+          taxBilling: taxBilling,
+          invoiceConfig: inv,
+        );
+
+        if (isNarrow) {
+          return ListView(
+            children: [
+              leftControls,
+              const SizedBox(height: AppSpacing.md),
+              rightPreview,
+            ],
+          );
+        }
+
+        return ListView(
           children: [
-            // Left Controls
-            Expanded(
-              flex: 3,
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceCard,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.borderSubtle),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Receipt Layout & Header Details', style: AppTypography.titleMedium),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.champagneGold, foregroundColor: AppColors.matteBlack),
-                          onPressed: _saveReceiptConfig,
-                          icon: const Icon(Icons.save_rounded, size: 16),
-                          label: const Text('Save Template'),
-                        ),
-                      ],
-                    ),
-                    const Divider(color: AppColors.borderSubtle, height: 20),
-
-                    TextField(controller: _invoiceTitleCtrl, decoration: const InputDecoration(labelText: 'Bill / Receipt Title (e.g. TAX INVOICE)')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _prefixCtrl, decoration: const InputDecoration(labelText: 'Invoice Serial Prefix (e.g. INV-2026-)')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _thankYouCtrl, decoration: const InputDecoration(labelText: 'Thank You Message')),
-                    const SizedBox(height: 12),
-                    TextField(controller: _footerMsgCtrl, decoration: const InputDecoration(labelText: 'Footer Legal Note / Policy')),
-                    const SizedBox(height: 16),
-
-                    const Text('Content Visibility Toggles:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-                    _buildReceiptSwitch('Show Restaurant Logo', inv.showLogo, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showLogo: v))),
-                    _buildReceiptSwitch('Show Restaurant Name', inv.showRestaurantName, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showRestaurantName: v))),
-                    _buildReceiptSwitch('Show Address & Telephone', inv.showAddressContact, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showAddressContact: v))),
-                    _buildReceiptSwitch('Show GSTIN Registration', inv.showGstin, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showGstin: v))),
-                    _buildReceiptSwitch('Show FSSAI License Number', inv.showFssai, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showFssai: v))),
-                    _buildReceiptSwitch('Show Customer Name & Phone', inv.showCustomerDetails, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showCustomerDetails: v))),
-                    _buildReceiptSwitch('Show Itemised Tax Breakdown', inv.showTaxBreakdown, (v) => ref.read(invoiceReceiptConfigProvider.notifier).updateConfig(inv.copyWith(showTaxBreakdown: v))),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-
-            // Right Live Preview
-            Expanded(
-              flex: 4,
-              child: LiveReceiptPreview(
-                profile: profile,
-                taxBilling: taxBilling,
-                invoiceConfig: inv,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: leftControls),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(flex: 4, child: rightPreview),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -830,36 +876,70 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
             children: [
               const Text('Table Floor Plan & QR Settings', style: AppTypography.titleMedium),
               const Divider(color: AppColors.borderSubtle, height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: tableQr.tableNamingFormat,
-                      dropdownColor: AppColors.surfaceCard,
-                      decoration: const InputDecoration(labelText: 'Table Display Naming'),
-                      items: ['Table {number}', 'T-{number}'].map((f) {
-                        return DropdownMenuItem(value: f, child: Text(f));
-                      }).toList(),
-                      onChanged: (v) {
-                        if (v != null) ref.read(tableQrConfigProvider.notifier).updateConfig(tableQr.copyWith(tableNamingFormat: v));
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: tableQr.defaultCapacity,
-                      dropdownColor: AppColors.surfaceCard,
-                      decoration: const InputDecoration(labelText: 'Default Table Capacity'),
-                      items: [2, 4, 6, 8, 12].map((c) {
-                        return DropdownMenuItem(value: c, child: Text('$c Guests'));
-                      }).toList(),
-                      onChanged: (v) {
-                        if (v != null) ref.read(tableQrConfigProvider.notifier).updateConfig(tableQr.copyWith(defaultCapacity: v));
-                      },
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 600;
+                  if (isNarrow) {
+                    return Column(
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: tableQr.tableNamingFormat,
+                          dropdownColor: AppColors.surfaceCard,
+                          decoration: const InputDecoration(labelText: 'Table Display Naming'),
+                          items: ['Table {number}', 'T-{number}'].map((f) {
+                            return DropdownMenuItem(value: f, child: Text(f));
+                          }).toList(),
+                          onChanged: (v) {
+                            if (v != null) ref.read(tableQrConfigProvider.notifier).updateConfig(tableQr.copyWith(tableNamingFormat: v));
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<int>(
+                          value: tableQr.defaultCapacity,
+                          dropdownColor: AppColors.surfaceCard,
+                          decoration: const InputDecoration(labelText: 'Default Table Capacity'),
+                          items: [2, 4, 6, 8, 12].map((c) {
+                            return DropdownMenuItem(value: c, child: Text('$c Guests'));
+                          }).toList(),
+                          onChanged: (v) {
+                            if (v != null) ref.read(tableQrConfigProvider.notifier).updateConfig(tableQr.copyWith(defaultCapacity: v));
+                          },
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: tableQr.tableNamingFormat,
+                          dropdownColor: AppColors.surfaceCard,
+                          decoration: const InputDecoration(labelText: 'Table Display Naming'),
+                          items: ['Table {number}', 'T-{number}'].map((f) {
+                            return DropdownMenuItem(value: f, child: Text(f));
+                          }).toList(),
+                          onChanged: (v) {
+                            if (v != null) ref.read(tableQrConfigProvider.notifier).updateConfig(tableQr.copyWith(tableNamingFormat: v));
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: tableQr.defaultCapacity,
+                          dropdownColor: AppColors.surfaceCard,
+                          decoration: const InputDecoration(labelText: 'Default Table Capacity'),
+                          items: [2, 4, 6, 8, 12].map((c) {
+                            return DropdownMenuItem(value: c, child: Text('$c Guests'));
+                          }).toList(),
+                          onChanged: (v) {
+                            if (v != null) ref.read(tableQrConfigProvider.notifier).updateConfig(tableQr.copyWith(defaultCapacity: v));
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
@@ -892,7 +972,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
               const SizedBox(height: 4),
               const Text('Full interface translations for English, Hindi (हिन्दी), and Bengali (বাংলা).', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
               const Divider(color: AppColors.borderSubtle, height: 20),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
                 children: [
                   ChoiceChip(
                     label: const Text('English (EN)'),
@@ -904,7 +986,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                     ),
                     onSelected: (_) => ref.read(appLocaleProvider.notifier).setLocale(const Locale('en')),
                   ),
-                  const SizedBox(width: 12),
                   ChoiceChip(
                     label: const Text('हिन्दी (Hindi)'),
                     selected: locale.languageCode == 'hi',
@@ -915,7 +996,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                     ),
                     onSelected: (_) => ref.read(appLocaleProvider.notifier).setLocale(const Locale('hi')),
                   ),
-                  const SizedBox(width: 12),
                   ChoiceChip(
                     label: const Text('বাংলা (Bengali)'),
                     selected: locale.languageCode == 'bn',
@@ -934,7 +1014,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
               const SizedBox(height: 4),
               const Text('High-contrast luxury theme maintaining Anabhay Ventures brand identity.', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
               const Divider(color: AppColors.borderSubtle, height: 20),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
                 children: [
                   ChoiceChip(
                     avatar: const Icon(Icons.dark_mode_rounded, size: 16),
@@ -947,7 +1029,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                     ),
                     onSelected: (_) => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
                   ),
-                  const SizedBox(width: 12),
                   ChoiceChip(
                     avatar: const Icon(Icons.light_mode_rounded, size: 16),
                     label: const Text('Warm Ivory Light Theme'),
@@ -959,7 +1040,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                     ),
                     onSelected: (_) => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
                   ),
-                  const SizedBox(width: 12),
                   ChoiceChip(
                     avatar: const Icon(Icons.settings_brightness_rounded, size: 16),
                     label: const Text('System Auto'),
@@ -997,7 +1077,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
               const SizedBox(height: 4),
               const Text('Export full application database as portable JSON or restore demo factory defaults.', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
               const Divider(color: AppColors.borderSubtle, height: 20),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
                 children: [
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.champagneGold, foregroundColor: AppColors.matteBlack),
@@ -1005,14 +1087,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                     icon: const Icon(Icons.download_rounded, size: 16),
                     label: const Text('Export JSON Backup'),
                   ),
-                  const SizedBox(width: 12),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(foregroundColor: AppColors.warmIvory, side: const BorderSide(color: AppColors.borderSubtle)),
                     onPressed: _importDatabase,
                     icon: const Icon(Icons.upload_file_rounded, size: 16),
                     label: const Text('Import Backup File'),
                   ),
-                  const SizedBox(width: 12),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.surfaceElevated, foregroundColor: AppColors.errorRed, side: const BorderSide(color: AppColors.errorRed)),
                     onPressed: _confirmResetData,
@@ -1033,13 +1113,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
                     child: const Icon(Icons.restaurant_rounded, size: 28, color: AppColors.champagneGold),
                   ),
                   const SizedBox(width: AppSpacing.md),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Restaurant Management Platform', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.warmIvory)),
-                      Text('Developed by Anabhay Ventures • Enterprise Client Demonstration Prototype', style: TextStyle(fontSize: 11, color: AppColors.champagneGold)),
-                      Text('Version 1.0.0 (Phase 7: Full System Suite) • Powered by Flutter & Dart', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text('Restaurant Management Platform', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.warmIvory)),
+                        Text('Developed by Anabhay Ventures • Enterprise Client Demonstration Prototype', style: TextStyle(fontSize: 11, color: AppColors.champagneGold)),
+                        Text('Version 1.0.0 (Phase 7: Full System Suite) • Powered by Flutter & Dart', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                      ],
+                    ),
                   ),
                 ],
               ),

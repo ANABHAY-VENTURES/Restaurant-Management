@@ -334,14 +334,17 @@ class _CustomerManagementScreenState extends ConsumerState<CustomerManagementScr
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Customer Relationship & Loyalty', style: AppTypography.headlineLarge),
-                        const SizedBox(height: 2),
-                        Text('Guest profiles, dining history, VIP tiers & royal rewards ledger', style: AppTypography.bodySmall),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Customer Relationship & Loyalty', style: AppTypography.headlineLarge, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text('Guest profiles, dining history, VIP tiers & royal rewards ledger', style: AppTypography.bodySmall, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.champagneGold,
@@ -500,99 +503,184 @@ class _CustomerManagementScreenState extends ConsumerState<CustomerManagementScr
                         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                         border: Border.all(color: c.isVip ? AppColors.champagneGold.withValues(alpha: 0.5) : AppColors.borderSubtle),
                       ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: c.isVip ? AppColors.champagneGold.withValues(alpha: 0.2) : AppColors.surfaceElevated,
-                            child: Text(
-                              c.name[0],
-                              style: TextStyle(fontWeight: FontWeight.bold, color: c.isVip ? AppColors.champagneGold : AppColors.warmIvory),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            flex: 3,
-                            child: Column(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isNarrow = constraints.maxWidth < 650;
+                          if (isNarrow) {
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    Text(c.name, style: AppTypography.titleMedium),
-                                    const SizedBox(width: 8),
-                                    if (c.isVip)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.champagneGold.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: const Text('VIP PATRON', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                    CircleAvatar(
+                                      radius: 18,
+                                      backgroundColor: c.isVip ? AppColors.champagneGold.withValues(alpha: 0.2) : AppColors.surfaceElevated,
+                                      child: Text(
+                                        c.name.isNotEmpty ? c.name[0] : 'C',
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: c.isVip ? AppColors.champagneGold : AppColors.warmIvory),
                                       ),
-                                    if (c.isReturning && !c.isVip)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.successGreen.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: const Text('RETURNING', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.successGreen)),
+                                    ),
+                                    const SizedBox(width: AppSpacing.sm),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Flexible(child: Text(c.name, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis)),
+                                              const SizedBox(width: 4),
+                                              if (c.isVip)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.champagneGold.withValues(alpha: 0.2),
+                                                    borderRadius: BorderRadius.circular(3),
+                                                  ),
+                                                  child: const Text('VIP', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                                ),
+                                            ],
+                                          ),
+                                          Text(c.phone, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surfaceElevated,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: AppColors.champagneGold),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.stars_rounded, size: 12, color: AppColors.champagneGold),
+                                          const SizedBox(width: 2),
+                                          Text('${c.loyaltyPoints} pts', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
+                                      onPressed: () => _showAddEditCustomerDialog(c),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('${c.totalOrders} visits • ₹${c.totalSpend.toStringAsFixed(0)} spend', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warmIvory)),
+                                    OutlinedButton(
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: AppColors.champagneGold,
+                                        side: const BorderSide(color: AppColors.champagneGold),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        minimumSize: const Size(50, 26),
+                                      ),
+                                      onPressed: () => _showRedeemDialog(c),
+                                      child: const Text('Redeem', style: TextStyle(fontSize: 10)),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          }
+                          return Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: c.isVip ? AppColors.champagneGold.withValues(alpha: 0.2) : AppColors.surfaceElevated,
+                                child: Text(
+                                  c.name.isNotEmpty ? c.name[0] : 'C',
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: c.isVip ? AppColors.champagneGold : AppColors.warmIvory),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                flex: 3,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(child: Text(c.name, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis)),
+                                        const SizedBox(width: 8),
+                                        if (c.isVip)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.champagneGold.withValues(alpha: 0.2),
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            child: const Text('VIP PATRON', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                          ),
+                                        if (c.isReturning && !c.isVip)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.successGreen.withValues(alpha: 0.2),
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            child: const Text('RETURNING', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.successGreen)),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text('${c.phone}${c.email != null ? ' • ${c.email}' : ''}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary), overflow: TextOverflow.ellipsis),
+                                    if (c.notes != null && c.notes!.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text('Preference: ${c.notes}', style: const TextStyle(fontSize: 10, color: AppColors.champagneGold, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis),
                                       ),
                                   ],
                                 ),
-                                const SizedBox(height: 2),
-                                Text('${c.phone}${c.email != null ? ' • ${c.email}' : ''}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                                if (c.notes != null && c.notes!.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Text('Preference: ${c.notes}', style: const TextStyle(fontSize: 10, color: AppColors.champagneGold, fontStyle: FontStyle.italic)),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('${c.totalOrders} visits • ₹${c.totalSpend.toStringAsFixed(0)} spend', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warmIvory)),
-                                Text('Last visited: ${c.lastVisit.toLocal().toString().split(' ')[0]}', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                              ],
-                            ),
-                          ),
-                          // Loyalty Points
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceElevated,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.champagneGold),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.stars_rounded, size: 14, color: AppColors.champagneGold),
-                                const SizedBox(width: 4),
-                                Text('${c.loyaltyPoints} pts', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Redeem Button
-                          OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.champagneGold,
-                              side: const BorderSide(color: AppColors.champagneGold),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              minimumSize: const Size(60, 30),
-                            ),
-                            onPressed: () => _showRedeemDialog(c),
-                            child: const Text('Redeem', style: TextStyle(fontSize: 11)),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
-                            onPressed: () => _showAddEditCustomerDialog(c),
-                          ),
-                        ],
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${c.totalOrders} visits • ₹${c.totalSpend.toStringAsFixed(0)} spend', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warmIvory)),
+                                    Text('Last visited: ${c.lastVisit.toLocal().toString().split(' ')[0]}', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                                  ],
+                                ),
+                              ),
+                              // Loyalty Points
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceElevated,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.champagneGold),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.stars_rounded, size: 14, color: AppColors.champagneGold),
+                                    const SizedBox(width: 4),
+                                    Text('${c.loyaltyPoints} pts', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Redeem Button
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.champagneGold,
+                                  side: const BorderSide(color: AppColors.champagneGold),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  minimumSize: const Size(60, 30),
+                                ),
+                                onPressed: () => _showRedeemDialog(c),
+                                child: const Text('Redeem', style: TextStyle(fontSize: 11)),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
+                                onPressed: () => _showAddEditCustomerDialog(c),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     );
                   },
@@ -603,111 +691,123 @@ class _CustomerManagementScreenState extends ConsumerState<CustomerManagementScr
   }
 
   Widget _buildInsightsTab(CustomerMetrics metrics) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Top Spenders Leaderboard
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.borderSubtle),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Icon(Icons.diamond_outlined, size: 18, color: AppColors.champagneGold),
-                    SizedBox(width: 8),
-                    Text('Top Spending VIP Patrons', style: AppTypography.titleMedium),
-                  ],
-                ),
-                const Divider(color: AppColors.borderSubtle, height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: metrics.topSpenders.length,
-                    itemBuilder: (context, index) {
-                      final c = metrics.topSpenders[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: AppColors.champagneGold.withValues(alpha: 0.2),
-                          child: Text('#${index + 1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
-                        ),
-                        title: Text(c.name, style: AppTypography.bodyMedium),
-                        subtitle: Text('${c.totalOrders} dining sessions', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                        trailing: Text(
-                          '₹${c.totalSpend.toStringAsFixed(0)}',
-                          style: AppTypography.currencyMedium.copyWith(color: AppColors.champagneGold),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 700;
+        final leftCard = Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceCard,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
-        ),
-        const SizedBox(width: AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.diamond_outlined, size: 18, color: AppColors.champagneGold),
+                  SizedBox(width: 8),
+                  Text('Top Spending VIP Patrons', style: AppTypography.titleMedium),
+                ],
+              ),
+              const Divider(color: AppColors.borderSubtle, height: 20),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: metrics.topSpenders.length,
+                  itemBuilder: (context, index) {
+                    final c = metrics.topSpenders[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        radius: 14,
+                        backgroundColor: AppColors.champagneGold.withValues(alpha: 0.2),
+                        child: Text('#${index + 1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                      ),
+                      title: Text(c.name, style: AppTypography.bodyMedium),
+                      subtitle: Text('${c.totalOrders} dining sessions', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                      trailing: Text(
+                        '₹${c.totalSpend.toStringAsFixed(0)}',
+                        style: AppTypography.currencyMedium.copyWith(color: AppColors.champagneGold),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
 
-        // Most Frequent Visitors
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.borderSubtle),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Icon(Icons.repeat_on_rounded, size: 18, color: AppColors.copper),
-                    SizedBox(width: 8),
-                    Text('Most Frequent Visitors', style: AppTypography.titleMedium),
-                  ],
-                ),
-                const Divider(color: AppColors.borderSubtle, height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: metrics.mostFrequent.length,
-                    itemBuilder: (context, index) {
-                      final c = metrics.mostFrequent[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: AppColors.copper.withValues(alpha: 0.2),
-                          child: Text('#${index + 1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.copper)),
-                        ),
-                        title: Text(c.name, style: AppTypography.bodyMedium),
-                        subtitle: Text(c.phone, style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceElevated,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${c.totalOrders} Visits',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warmIvory),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+        final rightCard = Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceCard,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
-        ),
-      ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.repeat_on_rounded, size: 18, color: AppColors.copper),
+                  SizedBox(width: 8),
+                  Text('Most Frequent Visitors', style: AppTypography.titleMedium),
+                ],
+              ),
+              const Divider(color: AppColors.borderSubtle, height: 20),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: metrics.mostFrequent.length,
+                  itemBuilder: (context, index) {
+                    final c = metrics.mostFrequent[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        radius: 14,
+                        backgroundColor: AppColors.copper.withValues(alpha: 0.2),
+                        child: Text('#${index + 1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.copper)),
+                      ),
+                      title: Text(c.name, style: AppTypography.bodyMedium),
+                      subtitle: Text(c.phone, style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceElevated,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${c.totalOrders} Visits',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warmIvory),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (isNarrow) {
+          return ListView(
+            children: [
+              SizedBox(height: 380, child: leftCard),
+              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: 380, child: rightCard),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: leftCard),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: rightCard),
+          ],
+        );
+      },
     );
   }
 

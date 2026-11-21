@@ -263,8 +263,6 @@ void main() {
           id: 'rec-saffron-biryani',
           menuItemId: 'dish-saffron-biryani',
           menuItemName: 'Shahi Saffron Dum Biryani',
-          category: 'Biryani',
-          prepTimeMinutes: 30,
           servings: 1,
           ingredients: [
             RecipeIngredient(

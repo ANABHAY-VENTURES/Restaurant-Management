@@ -213,7 +213,7 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: AppSpacing.md,
         mainAxisSpacing: AppSpacing.md,
-        mainAxisExtent: 220,
+        mainAxisExtent: isDesktop ? 180 : (isTablet ? 170 : 160),
       ),
       itemCount: entries.length,
       itemBuilder: (context, index) {

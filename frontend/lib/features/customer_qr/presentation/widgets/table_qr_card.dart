@@ -234,19 +234,24 @@ class _TableQrCardState extends State<TableQrCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.table.number,
-                    style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '${widget.table.zone} • ${widget.table.capacity} seats',
-                    style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.table.number,
+                      style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '${widget.table.zone} • ${widget.table.capacity} seats',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(

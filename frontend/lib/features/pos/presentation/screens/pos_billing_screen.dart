@@ -63,7 +63,9 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.xs,
                 children: [
                   ChoiceChip(
                     label: const Text('Percentage (%)'),
@@ -75,7 +77,6 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
                     ),
                     onSelected: (val) => setDialogState(() => isPercent = true),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
                   ChoiceChip(
                     label: const Text('Fixed Amount (₹)'),
                     selected: !isPercent,
@@ -260,9 +261,9 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
                         minChildSize: 0.5,
                         maxChildSize: 0.95,
                         expand: false,
-                        builder: (_, scrollController) => SingleChildScrollView(
-                          controller: scrollController,
-                          child: _buildCartPanel(cart),
+                        builder: (_, scrollController) => SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.85,
+                          child: _buildCartPanel(cart, scrollController: scrollController),
                         ),
                       ),
                     );
@@ -671,7 +672,7 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
     );
   }
 
-  Widget _buildCartPanel(PosCartState cart) {
+  Widget _buildCartPanel(PosCartState cart, {ScrollController? scrollController}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -779,6 +780,7 @@ class _POSBillingScreenState extends ConsumerState<POSBillingScreen> {
                   description: 'Select dishes from the menu to build table bill.',
                 )
               : ListView.separated(
+                  controller: scrollController,
                   padding: const EdgeInsets.all(AppSpacing.base),
                   itemCount: cart.items.length,
                   separatorBuilder: (_, _) => const Divider(color: AppColors.borderSubtle, height: 16),

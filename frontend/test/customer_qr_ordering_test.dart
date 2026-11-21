@@ -240,8 +240,8 @@ void main() {
         items: [
           const OrderItem(
             id: 'ord-chk-1',
-            menuItemId: 'menu-1', // Has recipe with 200g chicken
-            name: 'Murgh Awadhi Dum Biryani',
+            menuItemId: 'm1', // Matches default recipe for Chicken Dum Biryani
+            name: 'Chicken Dum Biryani',
             unitPrice: 380.0,
             quantity: 1,
             isVeg: false,
@@ -309,6 +309,16 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const SizedBox(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
       final order = container.read(ordersProvider.notifier).createOrder(
         tableNumber: 'Table 05',
         orderType: OrderType.dineIn,

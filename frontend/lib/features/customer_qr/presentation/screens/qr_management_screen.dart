@@ -104,18 +104,23 @@ class _QRManagementScreenState extends ConsumerState<QRManagementScreen> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Table QR Management', style: AppTypography.headlineLarge),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Unique contactless ordering QR codes for all restaurant tables • Instant KDS linking',
-                          style: AppTypography.bodySmall,
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Table QR Management', style: AppTypography.headlineLarge, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Unique contactless ordering QR codes for all restaurant tables • Instant KDS linking',
+                            style: AppTypography.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
@@ -155,44 +160,51 @@ class _QRManagementScreenState extends ConsumerState<QRManagementScreen> {
             const SizedBox(height: AppSpacing.md),
 
             // Metrics Bar
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricTile(
-                    label: 'Configured Tables',
-                    value: '${tables.length}',
-                    icon: Icons.table_restaurant_outlined,
-                    color: AppColors.champagneGold,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 200,
+                    child: _buildMetricTile(
+                      label: 'Configured Tables',
+                      value: '${tables.length}',
+                      icon: Icons.table_restaurant_outlined,
+                      color: AppColors.champagneGold,
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _buildMetricTile(
-                    label: 'Active Dining Sessions',
-                    value: '$activeSessions',
-                    icon: Icons.people_outline_rounded,
-                    color: AppColors.copper,
+                  const SizedBox(width: AppSpacing.md),
+                  SizedBox(
+                    width: 200,
+                    child: _buildMetricTile(
+                      label: 'Active Dining Sessions',
+                      value: '$activeSessions',
+                      icon: Icons.people_outline_rounded,
+                      color: AppColors.copper,
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _buildMetricTile(
-                    label: 'Contactless Table Orders',
-                    value: '$totalQrOrders',
-                    icon: Icons.qr_code_scanner_rounded,
-                    color: AppColors.successGreen,
+                  const SizedBox(width: AppSpacing.md),
+                  SizedBox(
+                    width: 200,
+                    child: _buildMetricTile(
+                      label: 'Contactless Table Orders',
+                      value: '$totalQrOrders',
+                      icon: Icons.qr_code_scanner_rounded,
+                      color: AppColors.successGreen,
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _buildMetricTile(
-                    label: 'QR Scanner Route',
-                    value: 'Web-First',
-                    icon: Icons.language_rounded,
-                    color: AppColors.warmIvory,
+                  const SizedBox(width: AppSpacing.md),
+                  SizedBox(
+                    width: 200,
+                    child: _buildMetricTile(
+                      label: 'QR Scanner Route',
+                      value: 'Web-First',
+                      icon: Icons.language_rounded,
+                      color: AppColors.warmIvory,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
 

@@ -68,7 +68,10 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusLg)),
             insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 620, maxHeight: 720),
+              constraints: BoxConstraints(
+                maxWidth: 620,
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Column(
@@ -146,7 +149,9 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
                                     children: [
                                       Text('Dietary Classification', style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondary)),
                                       const SizedBox(height: 4),
-                                      Row(
+                                      Wrap(
+                                        spacing: 4,
+                                        runSpacing: 4,
                                         children: [
                                           ChoiceChip(
                                             label: const Text('Veg'),
@@ -159,7 +164,6 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
                                             ),
                                             onSelected: (val) => setDialogState(() => dietaryType = DietaryType.veg),
                                           ),
-                                          const SizedBox(width: 4),
                                           ChoiceChip(
                                             label: const Text('Non-Veg'),
                                             selected: dietaryType == DietaryType.nonVeg,
@@ -171,7 +175,6 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
                                             ),
                                             onSelected: (val) => setDialogState(() => dietaryType = DietaryType.nonVeg),
                                           ),
-                                          const SizedBox(width: 4),
                                           ChoiceChip(
                                             label: const Text('Egg'),
                                             selected: dietaryType == DietaryType.egg,
@@ -561,15 +564,19 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Menu & Catalog Management', style: AppTypography.headlineLarge),
-                        const SizedBox(height: 2),
-                        Text('Manage food items, portions, add-ons, pricing & categories', style: AppTypography.bodySmall),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Menu & Catalog Management', style: AppTypography.headlineLarge, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text('Manage food items, portions, add-ons, pricing & categories', style: AppTypography.bodySmall, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
@@ -614,6 +621,8 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
               ),
               child: TabBar(
                 controller: _tabController,
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
                 indicator: BoxDecoration(
                   color: AppColors.champagneGold,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
@@ -722,56 +731,115 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
     return Column(
       children: [
         // Filter and Search Toolbar
-        Row(
-          children: [
-            Expanded(
-              child: AppTextField(
-                hintText: 'Search menu by name, category or ingredient...',
-                prefixIcon: Icons.search_rounded,
-                onChanged: (val) => setState(() => _searchQuery = val),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-
-            // Dietary Filter
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                border: Border.all(color: AppColors.borderSubtle),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _dietaryFilter,
-                  dropdownColor: AppColors.surfaceElevated,
-                  style: const TextStyle(fontSize: 12, color: AppColors.warmIvory),
-                  items: ['All', 'Veg', 'Non-Veg'].map((d) => DropdownMenuItem(value: d, child: Text('Dietary: $d'))).toList(),
-                  onChanged: (val) => setState(() => _dietaryFilter = val!),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 650;
+            if (isNarrow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppTextField(
+                    hintText: 'Search menu by name, category or ingredient...',
+                    prefixIcon: Icons.search_rounded,
+                    onChanged: (val) => setState(() => _searchQuery = val),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            border: Border.all(color: AppColors.borderSubtle),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: _dietaryFilter,
+                              dropdownColor: AppColors.surfaceElevated,
+                              style: const TextStyle(fontSize: 12, color: AppColors.warmIvory),
+                              items: ['All', 'Veg', 'Non-Veg'].map((d) => DropdownMenuItem(value: d, child: Text('Dietary: $d'))).toList(),
+                              onChanged: (val) => setState(() => _dietaryFilter = val!),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                            border: Border.all(color: AppColors.borderSubtle),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: _sortBy,
+                              dropdownColor: AppColors.surfaceElevated,
+                              style: const TextStyle(fontSize: 12, color: AppColors.warmIvory),
+                              items: ['Name', 'Price Low-High', 'Price High-Low', 'Margin'].map((s) => DropdownMenuItem(value: s, child: Text('Sort: $s'))).toList(),
+                              onChanged: (val) => setState(() => _sortBy = val!),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    hintText: 'Search menu by name, category or ingredient...',
+                    prefixIcon: Icons.search_rounded,
+                    onChanged: (val) => setState(() => _searchQuery = val),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-
-            // Sort Dropdown
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                border: Border.all(color: AppColors.borderSubtle),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _sortBy,
-                  dropdownColor: AppColors.surfaceElevated,
-                  style: const TextStyle(fontSize: 12, color: AppColors.warmIvory),
-                  items: ['Name', 'Price Low-High', 'Price High-Low', 'Margin'].map((s) => DropdownMenuItem(value: s, child: Text('Sort: $s'))).toList(),
-                  onChanged: (val) => setState(() => _sortBy = val!),
+                const SizedBox(width: AppSpacing.md),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _dietaryFilter,
+                      dropdownColor: AppColors.surfaceElevated,
+                      style: const TextStyle(fontSize: 12, color: AppColors.warmIvory),
+                      items: ['All', 'Veg', 'Non-Veg'].map((d) => DropdownMenuItem(value: d, child: Text('Dietary: $d'))).toList(),
+                      onChanged: (val) => setState(() => _dietaryFilter = val!),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
+                const SizedBox(width: AppSpacing.sm),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _sortBy,
+                      dropdownColor: AppColors.surfaceElevated,
+                      style: const TextStyle(fontSize: 12, color: AppColors.warmIvory),
+                      items: ['Name', 'Price Low-High', 'Price High-Low', 'Margin'].map((s) => DropdownMenuItem(value: s, child: Text('Sort: $s'))).toList(),
+                      onChanged: (val) => setState(() => _sortBy = val!),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         const SizedBox(height: AppSpacing.sm),
 
@@ -1057,8 +1125,11 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
           children: [
             Text('Quick Price & Rush Hour 86 Manager', style: AppTypography.titleLarge),
             Text('Changes immediately synchronize across POS, Kitchen and Customer QR Menu', style: AppTypography.bodySmall),
@@ -1081,76 +1152,161 @@ class _MenuManagementScreenState extends ConsumerState<MenuManagementScreen> wit
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: item.dietaryType.color,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        flex: 4,
-                        child: Column(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 620;
+                      if (isNarrow) {
+                        return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item.name, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
-                            Text(item.category, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: item.dietaryType.color,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(item.name, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
+                                      Text(item.category, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 110,
+                                  child: TextField(
+                                    controller: priceCtrl,
+                                    keyboardType: TextInputType.number,
+                                    style: const TextStyle(fontSize: 13, color: AppColors.warmIvory, fontWeight: FontWeight.bold),
+                                    decoration: InputDecoration(
+                                      prefixText: '₹ ',
+                                      prefixStyle: const TextStyle(color: AppColors.champagneGold, fontWeight: FontWeight.bold),
+                                      filled: true,
+                                      fillColor: AppColors.surfaceElevated,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide.none),
+                                    ),
+                                    onSubmitted: (val) {
+                                      final newP = double.tryParse(val);
+                                      if (newP != null && newP > 0) {
+                                        ref.read(menuItemsProvider.notifier).updatePrice(item.id, newP);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Updated price for ${item.name} to ₹${newP.toStringAsFixed(0)}'), backgroundColor: AppColors.successGreen),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    Text(
+                                      item.isAvailable ? 'In Stock' : '86ed / Out',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: item.isAvailable ? AppColors.successGreen : AppColors.errorRed,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Switch(
+                                      value: item.isAvailable,
+                                      activeThumbColor: AppColors.champagneGold,
+                                      onChanged: (val) {
+                                        ref.read(menuItemsProvider.notifier).toggleAvailability(item.id);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ],
-                        ),
-                      ),
-                      // Editable Price field
-                      SizedBox(
-                        width: 110,
-                        child: TextField(
-                          controller: priceCtrl,
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(fontSize: 13, color: AppColors.warmIvory, fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                            prefixText: '₹ ',
-                            prefixStyle: const TextStyle(color: AppColors.champagneGold, fontWeight: FontWeight.bold),
-                            filled: true,
-                            fillColor: AppColors.surfaceElevated,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide.none),
-                          ),
-                          onSubmitted: (val) {
-                            final newP = double.tryParse(val);
-                            if (newP != null && newP > 0) {
-                              ref.read(menuItemsProvider.notifier).updatePrice(item.id, newP);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Updated price for ${item.name} to ₹${newP.toStringAsFixed(0)}'), backgroundColor: AppColors.successGreen),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.lg),
-                      // Out of stock toggle
-                      Row(
+                        );
+                      }
+                      return Row(
                         children: [
-                          Text(
-                            item.isAvailable ? 'In Stock' : '86ed / Out',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: item.isAvailable ? AppColors.successGreen : AppColors.errorRed,
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: item.dietaryType.color,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          Switch(
-                            value: item.isAvailable,
-                            activeThumbColor: AppColors.champagneGold,
-                            onChanged: (val) {
-                              ref.read(menuItemsProvider.notifier).toggleAvailability(item.id);
-                            },
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item.name, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
+                                Text(item.category, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                              ],
+                            ),
+                          ),
+                          // Editable Price field
+                          SizedBox(
+                            width: 110,
+                            child: TextField(
+                              controller: priceCtrl,
+                              keyboardType: TextInputType.number,
+                              style: const TextStyle(fontSize: 13, color: AppColors.warmIvory, fontWeight: FontWeight.bold),
+                              decoration: InputDecoration(
+                                prefixText: '₹ ',
+                                prefixStyle: const TextStyle(color: AppColors.champagneGold, fontWeight: FontWeight.bold),
+                                filled: true,
+                                fillColor: AppColors.surfaceElevated,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide.none),
+                              ),
+                              onSubmitted: (val) {
+                                final newP = double.tryParse(val);
+                                if (newP != null && newP > 0) {
+                                  ref.read(menuItemsProvider.notifier).updatePrice(item.id, newP);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Updated price for ${item.name} to ₹${newP.toStringAsFixed(0)}'), backgroundColor: AppColors.successGreen),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.lg),
+                          // Out of stock toggle
+                          Row(
+                            children: [
+                              Text(
+                                item.isAvailable ? 'In Stock' : '86ed / Out',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: item.isAvailable ? AppColors.successGreen : AppColors.errorRed,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Switch(
+                                value: item.isAvailable,
+                                activeThumbColor: AppColors.champagneGold,
+                                onChanged: (val) {
+                                  ref.read(menuItemsProvider.notifier).toggleAvailability(item.id);
+                                },
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 );
               },

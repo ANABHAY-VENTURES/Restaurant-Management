@@ -377,14 +377,17 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> w
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Staff Management', style: AppTypography.headlineLarge),
-                        const SizedBox(height: 2),
-                        Text('Team roster, daily attendance, work schedules & service performance', style: AppTypography.bodySmall),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Staff Management', style: AppTypography.headlineLarge, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text('Team roster, daily attendance, work schedules & service performance', style: AppTypography.bodySmall, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.champagneGold,
@@ -543,78 +546,140 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> w
                         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                         border: Border.all(color: s.isActive ? AppColors.borderSubtle : AppColors.errorRed.withValues(alpha: 0.3)),
                       ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: s.role.color.withValues(alpha: 0.2),
-                            child: Text(
-                              s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
-                              style: TextStyle(fontWeight: FontWeight.bold, color: s.role.color),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isNarrow = constraints.maxWidth < 650;
+                          if (isNarrow) {
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    Text(s.name, style: AppTypography.titleMedium),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: s.role.color.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: s.role.color.withValues(alpha: 0.4)),
+                                    CircleAvatar(
+                                      radius: 18,
+                                      backgroundColor: s.role.color.withValues(alpha: 0.2),
+                                      child: Text(
+                                        s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: s.role.color),
                                       ),
-                                      child: Text(s.role.label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: s.role.color)),
+                                    ),
+                                    const SizedBox(width: AppSpacing.sm),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(s.name, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis),
+                                          Text('${s.role.label} • ${s.phone}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
+                                      onPressed: () => _showAddEditStaffDialog(s),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.errorRed),
+                                      onPressed: () => _confirmDelete(s),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 2),
-                                Text('${s.phone} • ${s.email}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('₹${s.monthlySalary.toStringAsFixed(0)} / mo', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                    Row(
+                                      children: [
+                                        Text(s.isActive ? 'Active' : 'Inactive', style: TextStyle(fontSize: 11, color: s.isActive ? AppColors.successGreen : AppColors.errorRed)),
+                                        Transform.scale(
+                                          scale: 0.75,
+                                          child: Switch(
+                                            value: s.isActive,
+                                            activeThumbColor: AppColors.successGreen,
+                                            onChanged: (_) => ref.read(staffProvider.notifier).toggleActive(s.id),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('₹${s.monthlySalary.toStringAsFixed(0)} / mo', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
-                                Text('Joined: ${s.joiningDate.toLocal().toString().split(' ')[0]}', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                              ],
-                            ),
-                          ),
-                          // Status Switch
-                          Row(
+                            );
+                          }
+                          return Row(
                             children: [
-                              Text(s.isActive ? 'Active' : 'Inactive', style: TextStyle(fontSize: 11, color: s.isActive ? AppColors.successGreen : AppColors.errorRed)),
-                              Transform.scale(
-                                scale: 0.75,
-                                child: Switch(
-                                  value: s.isActive,
-                                  activeThumbColor: AppColors.successGreen,
-                                  onChanged: (_) => ref.read(staffProvider.notifier).toggleActive(s.id),
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: s.role.color.withValues(alpha: 0.2),
+                                child: Text(
+                                  s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: s.role.color),
                                 ),
                               ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(child: Text(s.name, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis)),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: s.role.color.withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(color: s.role.color.withValues(alpha: 0.4)),
+                                          ),
+                                          child: Text(s.role.label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: s.role.color)),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text('${s.phone} • ${s.email}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary), overflow: TextOverflow.ellipsis),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('₹${s.monthlySalary.toStringAsFixed(0)} / mo', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                                    Text('Joined: ${s.joiningDate.toLocal().toString().split(' ')[0]}', style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                                  ],
+                                ),
+                              ),
+                              // Status Switch
+                              Row(
+                                children: [
+                                  Text(s.isActive ? 'Active' : 'Inactive', style: TextStyle(fontSize: 11, color: s.isActive ? AppColors.successGreen : AppColors.errorRed)),
+                                  Transform.scale(
+                                    scale: 0.75,
+                                    child: Switch(
+                                      value: s.isActive,
+                                      activeThumbColor: AppColors.successGreen,
+                                      onChanged: (_) => ref.read(staffProvider.notifier).toggleActive(s.id),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // Action buttons
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
+                                onPressed: () => _showAddEditStaffDialog(s),
+                                tooltip: 'Edit Details',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.errorRed),
+                                onPressed: () => _confirmDelete(s),
+                                tooltip: 'Delete Staff',
+                              ),
                             ],
-                          ),
-                          // Action buttons
-                          IconButton(
-                            icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
-                            onPressed: () => _showAddEditStaffDialog(s),
-                            tooltip: 'Edit Details',
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.errorRed),
-                            onPressed: () => _confirmDelete(s),
-                            tooltip: 'Delete Staff',
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     );
                   },
@@ -708,61 +773,125 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> w
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.borderSubtle),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Column(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 620;
+                    if (isNarrow) {
+                      return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(member.name, style: AppTypography.titleMedium),
-                          Text(member.role.label, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                        ],
-                      ),
-                    ),
-                    // Times
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isMarked && record.status != AttendanceStatus.absent
-                                ? 'In: ${record.checkInTime ?? '--'} | Out: ${record.checkOutTime ?? 'On Duty'}'
-                                : 'No Times Recorded',
-                            style: const TextStyle(fontSize: 11, color: AppColors.warmIvory),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(member.name, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis),
+                                    Text(member.role.label, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                  ],
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.surfaceElevated,
+                                  foregroundColor: AppColors.champagneGold,
+                                  side: const BorderSide(color: AppColors.champagneGold),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  minimumSize: const Size(50, 28),
+                                ),
+                                onPressed: () => _showMarkAttendanceDialog(member),
+                                child: Text(isMarked ? 'Update' : 'Mark', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
                           ),
-                          if (record.notes != null && record.notes!.isNotEmpty)
-                            Text(record.notes!, style: const TextStyle(fontSize: 10, color: AppColors.champagneGold, fontStyle: FontStyle.italic)),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  isMarked && record.status != AttendanceStatus.absent
+                                      ? 'In: ${record.checkInTime ?? '--'} | Out: ${record.checkOutTime ?? 'On Duty'}'
+                                      : 'No Times Recorded',
+                                  style: const TextStyle(fontSize: 11, color: AppColors.warmIvory),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: record.status.color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: record.status.color),
+                                ),
+                                child: Text(
+                                  isMarked ? record.status.label.toUpperCase() : 'NOT MARKED',
+                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: record.status.color),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
-                      ),
-                    ),
-                    // Status Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: record.status.color.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: record.status.color),
-                      ),
-                      child: Text(
-                        isMarked ? record.status.label.toUpperCase() : 'NOT MARKED',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: record.status.color),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    // Mark Action
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.surfaceElevated,
-                        foregroundColor: AppColors.champagneGold,
-                        side: const BorderSide(color: AppColors.champagneGold),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      ),
-                      onPressed: () => _showMarkAttendanceDialog(member),
-                      child: Text(isMarked ? 'Update' : 'Mark', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(member.name, style: AppTypography.titleMedium),
+                              Text(member.role.label, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                            ],
+                          ),
+                        ),
+                        // Times
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isMarked && record.status != AttendanceStatus.absent
+                                    ? 'In: ${record.checkInTime ?? '--'} | Out: ${record.checkOutTime ?? 'On Duty'}'
+                                    : 'No Times Recorded',
+                                style: const TextStyle(fontSize: 11, color: AppColors.warmIvory),
+                              ),
+                              if (record.notes != null && record.notes!.isNotEmpty)
+                                Text(record.notes!, style: const TextStyle(fontSize: 10, color: AppColors.champagneGold, fontStyle: FontStyle.italic)),
+                            ],
+                          ),
+                        ),
+                        // Status Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: record.status.color.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: record.status.color),
+                          ),
+                          child: Text(
+                            isMarked ? record.status.label.toUpperCase() : 'NOT MARKED',
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: record.status.color),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        // Mark Action
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.surfaceElevated,
+                            foregroundColor: AppColors.champagneGold,
+                            side: const BorderSide(color: AppColors.champagneGold),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          ),
+                          onPressed: () => _showMarkAttendanceDialog(member),
+                          child: Text(isMarked ? 'Update' : 'Mark', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               );
             },
@@ -788,55 +917,113 @@ class _StaffManagementScreenState extends ConsumerState<StaffManagementScreen> w
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             border: Border.all(color: AppColors.borderSubtle),
           ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: s.role.color.withValues(alpha: 0.2),
-                child: Text(s.name[0], style: TextStyle(fontWeight: FontWeight.bold, color: s.role.color)),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                flex: 2,
-                child: Column(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 620;
+              if (isNarrow) {
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(s.name, style: AppTypography.titleMedium),
-                    Text('${s.role.label} • Active Staff', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor: s.role.color.withValues(alpha: 0.2),
+                          child: Text(s.name[0], style: TextStyle(fontWeight: FontWeight.bold, color: s.role.color)),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(s.name, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis),
+                              Text('${s.role.label} • Active Staff', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Orders', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                            Text('${s.ordersHandled}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Attendance', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                            Text('$attendancePercent%', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.successGreen)),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Working Days', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                            Text('$workingDays days', style: const TextStyle(fontSize: 12, color: AppColors.warmIvory)),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Orders Handled', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                    Text('${s.ordersHandled}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Attendance Rate', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                    Text('$attendancePercent%', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.successGreen)),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Working Days', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-                    Text('$workingDays days / mo', style: const TextStyle(fontSize: 12, color: AppColors.warmIvory)),
-                  ],
-                ),
-              ),
-            ],
+                );
+              }
+              return Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: s.role.color.withValues(alpha: 0.2),
+                    child: Text(s.name[0], style: TextStyle(fontWeight: FontWeight.bold, color: s.role.color)),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(s.name, style: AppTypography.titleMedium),
+                        Text('${s.role.label} • Active Staff', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Orders Handled', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                        Text('${s.ordersHandled}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.champagneGold)),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Attendance Rate', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                        Text('$attendancePercent%', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.successGreen)),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Working Days', style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                        Text('$workingDays days / mo', style: const TextStyle(fontSize: 12, color: AppColors.warmIvory)),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         );
       },

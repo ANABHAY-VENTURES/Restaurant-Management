@@ -757,15 +757,19 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> with SingleTi
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Inventory & Stock Management', style: AppTypography.headlineLarge),
-                        const SizedBox(height: 2),
-                        Text('Real-time raw material ledger, automated recipe depletion & supplier procurement', style: AppTypography.bodySmall),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Inventory & Stock Management', style: AppTypography.headlineLarge, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text('Real-time raw material ledger, automated recipe depletion & supplier procurement', style: AppTypography.bodySmall, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
@@ -961,96 +965,189 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> with SingleTi
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: 10),
-                  child: Row(
-                    children: [
-                      // Status Icon Dot
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ing.isOutOfStock ? AppColors.errorRed : (ing.isLowStock ? AppColors.warningAmber : AppColors.successGreen),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-
-                      // Name & SKU
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(ing.name, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
-                            Text('${ing.sku} • ${ing.category}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                          ],
-                        ),
-                      ),
-
-                      // Current Stock & Progress against Minimum
-                      Expanded(
-                        flex: 3,
-                        child: Column(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 700;
+                      if (isNarrow) {
+                        return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text('${ing.currentStock} ${ing.unit.symbol}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warmIvory)),
-                                Text(' (Min: ${ing.minStockLevel})', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: ing.isOutOfStock ? AppColors.errorRed : (ing.isLowStock ? AppColors.warningAmber : AppColors.successGreen),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(ing.name, style: AppTypography.titleMedium.copyWith(fontSize: 14), overflow: TextOverflow.ellipsis),
+                                      Text('${ing.sku} • ${ing.category}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                    ],
+                                  ),
+                                ),
+                                StatusBadge(label: ing.statusLabel, variant: ing.statusBadgeVariant),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.add_box_outlined, size: 18, color: AppColors.successGreen),
+                                      tooltip: 'Add Stock',
+                                      onPressed: () => _showAddStockDialog(ing),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove_circle_outline_rounded, size: 18, color: AppColors.warningAmber),
+                                      tooltip: 'Log Wastage',
+                                      onPressed: () => _showRecordWastageDialog(ing),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
+                                      tooltip: 'Edit Ingredient',
+                                      onPressed: () => _showAddEditIngredientDialog(ing),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: progress,
-                                minHeight: 4,
-                                backgroundColor: AppColors.surfaceElevated,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  ing.isOutOfStock ? AppColors.errorRed : (ing.isLowStock ? AppColors.warningAmber : AppColors.successGreen),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('${ing.currentStock} ${ing.unit.symbol}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warmIvory)),
+                                          Text(' (Min: ${ing.minStockLevel})', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: LinearProgressIndicator(
+                                          value: progress,
+                                          minHeight: 4,
+                                          backgroundColor: AppColors.surfaceElevated,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            ing.isOutOfStock ? AppColors.errorRed : (ing.isLowStock ? AppColors.warningAmber : AppColors.successGreen),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: AppSpacing.md),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text('₹${ing.unitCost.toStringAsFixed(0)} / ${ing.unit.symbol}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                    Text('Value: ₹${ing.totalValue.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11, color: AppColors.champagneGold, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      ),
-
-                      // Unit Cost & Stock Value
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('₹${ing.unitCost.toStringAsFixed(0)} / ${ing.unit.symbol}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                            Text('Value: ₹${ing.totalValue.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11, color: AppColors.champagneGold, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ),
-
-                      // Status Badge
-                      StatusBadge(label: ing.statusLabel, variant: ing.statusBadgeVariant),
-                      const SizedBox(width: AppSpacing.md),
-
-                      // Action Buttons
-                      Row(
+                        );
+                      }
+                      return Row(
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.add_box_outlined, size: 18, color: AppColors.successGreen),
-                            tooltip: 'Add Stock',
-                            onPressed: () => _showAddStockDialog(ing),
+                          // Status Icon Dot
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: ing.isOutOfStock ? AppColors.errorRed : (ing.isLowStock ? AppColors.warningAmber : AppColors.successGreen),
+                            ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline_rounded, size: 18, color: AppColors.warningAmber),
-                            tooltip: 'Log Wastage',
-                            onPressed: () => _showRecordWastageDialog(ing),
+                          const SizedBox(width: AppSpacing.md),
+
+                          // Name & SKU
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(ing.name, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
+                                Text('${ing.sku} • ${ing.category}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                              ],
+                            ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
-                            tooltip: 'Edit Ingredient',
-                            onPressed: () => _showAddEditIngredientDialog(ing),
+
+                          // Current Stock & Progress against Minimum
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('${ing.currentStock} ${ing.unit.symbol}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warmIvory)),
+                                    Text(' (Min: ${ing.minStockLevel})', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: progress,
+                                    minHeight: 4,
+                                    backgroundColor: AppColors.surfaceElevated,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      ing.isOutOfStock ? AppColors.errorRed : (ing.isLowStock ? AppColors.warningAmber : AppColors.successGreen),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Unit Cost & Stock Value
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('₹${ing.unitCost.toStringAsFixed(0)} / ${ing.unit.symbol}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                Text('Value: ₹${ing.totalValue.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11, color: AppColors.champagneGold, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+
+                          // Status Badge
+                          StatusBadge(label: ing.statusLabel, variant: ing.statusBadgeVariant),
+                          const SizedBox(width: AppSpacing.md),
+
+                          // Action Buttons
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.add_box_outlined, size: 18, color: AppColors.successGreen),
+                                tooltip: 'Add Stock',
+                                onPressed: () => _showAddStockDialog(ing),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle_outline_rounded, size: 18, color: AppColors.warningAmber),
+                                tooltip: 'Log Wastage',
+                                onPressed: () => _showRecordWastageDialog(ing),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.champagneGold),
+                                tooltip: 'Edit Ingredient',
+                                onPressed: () => _showAddEditIngredientDialog(ing),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 );
               },
@@ -1194,45 +1291,88 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> with SingleTi
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('${po.id} • ${po.supplierName}', style: AppTypography.titleMedium.copyWith(color: AppColors.champagneGold)),
-                                  Text('Ordered: ${po.orderDate.toString().substring(0, 10)} • Payment: ${po.paymentStatus}',
-                                      style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text('₹${po.totalAmount.toStringAsFixed(0)}', style: AppTypography.currencyMedium),
-                                  const SizedBox(width: AppSpacing.md),
-                                  if (po.isReceived)
-                                    const StatusBadge(label: 'Stock Received', variant: BadgeVariant.success)
-                                  else
-                                    ElevatedButton.icon(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.successGreen,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                      ),
-                                      onPressed: () {
-                                        ref.read(purchasesProvider.notifier).markAsReceived(po.id);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Purchase ${po.id} received! Raw material stock replenished.'),
-                                            backgroundColor: AppColors.successGreen,
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isNarrow = constraints.maxWidth < 650;
+                              if (isNarrow) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${po.id} • ${po.supplierName}', style: AppTypography.titleMedium.copyWith(color: AppColors.champagneGold), overflow: TextOverflow.ellipsis),
+                                    Text('Ordered: ${po.orderDate.toString().substring(0, 10)} • Payment: ${po.paymentStatus}',
+                                        style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('₹${po.totalAmount.toStringAsFixed(0)}', style: AppTypography.currencyMedium),
+                                        if (po.isReceived)
+                                          const StatusBadge(label: 'Stock Received', variant: BadgeVariant.success)
+                                        else
+                                          ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: AppColors.successGreen,
+                                              foregroundColor: Colors.white,
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            ),
+                                            onPressed: () {
+                                              ref.read(purchasesProvider.notifier).markAsReceived(po.id);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Purchase ${po.id} received! Raw material stock replenished.'),
+                                                  backgroundColor: AppColors.successGreen,
+                                                ),
+                                              );
+                                            },
+                                            icon: const Icon(Icons.check_circle_outline, size: 14),
+                                            label: const Text('Mark Received', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                           ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.check_circle_outline, size: 14),
-                                      label: const Text('Mark Received', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ],
                                     ),
+                                  ],
+                                );
+                              }
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('${po.id} • ${po.supplierName}', style: AppTypography.titleMedium.copyWith(color: AppColors.champagneGold)),
+                                      Text('Ordered: ${po.orderDate.toString().substring(0, 10)} • Payment: ${po.paymentStatus}',
+                                          style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text('₹${po.totalAmount.toStringAsFixed(0)}', style: AppTypography.currencyMedium),
+                                      const SizedBox(width: AppSpacing.md),
+                                      if (po.isReceived)
+                                        const StatusBadge(label: 'Stock Received', variant: BadgeVariant.success)
+                                      else
+                                        ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.successGreen,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          ),
+                                          onPressed: () {
+                                            ref.read(purchasesProvider.notifier).markAsReceived(po.id);
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Purchase ${po.id} received! Raw material stock replenished.'),
+                                                backgroundColor: AppColors.successGreen,
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.check_circle_outline, size: 14),
+                                          label: const Text('Mark Received', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                        ),
+                                    ],
+                                  ),
                                 ],
-                              ),
-                            ],
+                              );
+                            },
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -1255,8 +1395,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> with SingleTi
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
           children: [
             Text('Stock Movement Audit Ledger (${movements.length} Transactions)', style: AppTypography.titleLarge),
             Text('Traceability for automatic POS deductions, restocks and wastage', style: AppTypography.bodySmall),
@@ -1281,54 +1424,105 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> with SingleTi
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: 10),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: isDeduction ? AppColors.errorRed.withValues(alpha: 0.15) : AppColors.successGreen.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isDeduction ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-                          size: 16,
-                          color: isDeduction ? AppColors.errorRed : AppColors.successGreen,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        flex: 4,
-                        child: Column(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 650;
+                      if (isNarrow) {
+                        return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(m.ingredientName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warmIvory)),
-                            Text('${m.type.label} • ${m.reason}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: isDeduction ? AppColors.errorRed.withValues(alpha: 0.15) : AppColors.successGreen.withValues(alpha: 0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isDeduction ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                                    size: 14,
+                                    color: isDeduction ? AppColors.errorRed : AppColors.successGreen,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                Expanded(
+                                  child: Text(m.ingredientName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warmIvory), overflow: TextOverflow.ellipsis),
+                                ),
+                                Text(
+                                  '${isDeduction ? "-" : "+"}${m.quantity.toStringAsFixed(2)} ${m.unit.symbol}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: isDeduction ? AppColors.errorRed : AppColors.successGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('${m.type.label} • ${m.reason}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                                Text(
+                                  '${m.previousStock.toStringAsFixed(1)} ➔ ${m.newStock.toStringAsFixed(1)} (${m.timestamp.toString().substring(11, 16)})',
+                                  style: const TextStyle(fontSize: 10, color: AppColors.textTertiary),
+                                ),
+                              ],
+                            ),
                           ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          '${isDeduction ? "-" : "+"}${m.quantity.toStringAsFixed(2)} ${m.unit.symbol}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: isDeduction ? AppColors.errorRed : AppColors.successGreen,
+                        );
+                      }
+                      return Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: isDeduction ? AppColors.errorRed.withValues(alpha: 0.15) : AppColors.successGreen.withValues(alpha: 0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isDeduction ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                              size: 16,
+                              color: isDeduction ? AppColors.errorRed : AppColors.successGreen,
+                            ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          '${m.previousStock.toStringAsFixed(1)} ➔ ${m.newStock.toStringAsFixed(1)}',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
-                        ),
-                      ),
-                      Text(
-                        m.timestamp.toString().substring(11, 16),
-                        style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
-                      ),
-                    ],
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(m.ingredientName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.warmIvory)),
+                                Text('${m.type.label} • ${m.reason}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '${isDeduction ? "-" : "+"}${m.quantity.toStringAsFixed(2)} ${m.unit.symbol}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: isDeduction ? AppColors.errorRed : AppColors.successGreen,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '${m.previousStock.toStringAsFixed(1)} ➔ ${m.newStock.toStringAsFixed(1)}',
+                              style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                            ),
+                          ),
+                          Text(
+                            m.timestamp.toString().substring(11, 16),
+                            style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 );
               },

@@ -245,15 +245,19 @@ class _ReportsAnalyticsScreenState extends ConsumerState<ReportsAnalyticsScreen>
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Financial Reports & Business Analytics', style: AppTypography.headlineLarge),
-                        const SizedBox(height: 2),
-                        Text('Executive metrics, product margins, tender splits & raw material accounting', style: AppTypography.bodySmall),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Financial Reports & Business Analytics', style: AppTypography.headlineLarge, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 2),
+                          Text('Executive metrics, product margins, tender splits & raw material accounting', style: AppTypography.bodySmall, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: AppSpacing.md),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
@@ -525,39 +529,54 @@ class _ReportsAnalyticsScreenState extends ConsumerState<ReportsAnalyticsScreen>
   }
 
   Widget _buildPaymentsTab(PaymentBreakdown payments) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: _buildPaymentCard(
-            title: 'UPI / Contactless QR',
-            amount: payments.upiTotal,
-            txCount: payments.upiCount,
-            icon: Icons.qr_code_2_rounded,
-            color: AppColors.champagneGold,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: _buildPaymentCard(
-            title: 'Cash at Counter',
-            amount: payments.cashTotal,
-            txCount: payments.cashCount,
-            icon: Icons.money_rounded,
-            color: AppColors.successGreen,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: _buildPaymentCard(
-            title: 'Card / POS Terminal',
-            amount: payments.cardTotal,
-            txCount: payments.cardCount,
-            icon: Icons.credit_card_rounded,
-            color: AppColors.copper,
-          ),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 700;
+        final upiCard = _buildPaymentCard(
+          title: 'UPI / Contactless QR',
+          amount: payments.upiTotal,
+          txCount: payments.upiCount,
+          icon: Icons.qr_code_2_rounded,
+          color: AppColors.champagneGold,
+        );
+        final cashCard = _buildPaymentCard(
+          title: 'Cash at Counter',
+          amount: payments.cashTotal,
+          txCount: payments.cashCount,
+          icon: Icons.money_rounded,
+          color: AppColors.successGreen,
+        );
+        final cardCard = _buildPaymentCard(
+          title: 'Card / POS Terminal',
+          amount: payments.cardTotal,
+          txCount: payments.cardCount,
+          icon: Icons.credit_card_rounded,
+          color: AppColors.copper,
+        );
+
+        if (isNarrow) {
+          return Column(
+            children: [
+              upiCard,
+              const SizedBox(height: AppSpacing.md),
+              cashCard,
+              const SizedBox(height: AppSpacing.md),
+              cardCard,
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: upiCard),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: cashCard),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: cardCard),
+          ],
+        );
+      },
     );
   }
 
@@ -586,7 +605,7 @@ class _ReportsAnalyticsScreenState extends ConsumerState<ReportsAnalyticsScreen>
                 child: Icon(icon, size: 20, color: color),
               ),
               const SizedBox(width: 8),
-              Text(title, style: AppTypography.titleMedium),
+              Expanded(child: Text(title, style: AppTypography.titleMedium, overflow: TextOverflow.ellipsis)),
             ],
           ),
           const SizedBox(height: 16),
@@ -606,37 +625,52 @@ class _ReportsAnalyticsScreenState extends ConsumerState<ReportsAnalyticsScreen>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Inventory Stock Valuation & Consumption Health', style: AppTypography.titleMedium),
-          const SizedBox(height: 4),
-          const Text('Synchronized with recipe-based automated deduction and supplier inward register', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
-          const Divider(color: AppColors.borderSubtle, height: 24),
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 650;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _buildAuditRow('Total Raw Materials Stock Value:', '₹${metrics.totalStockValue.toStringAsFixed(0)}', isBold: true),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: _buildAuditRow('Total Raw Ingredients Managed:', '${metrics.totalIngredients} items'),
-              ),
+              const Text('Inventory Stock Valuation & Consumption Health', style: AppTypography.titleMedium),
+              const SizedBox(height: 4),
+              const Text('Synchronized with recipe-based automated deduction and supplier inward register', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+              const Divider(color: AppColors.borderSubtle, height: 24),
+              if (isNarrow) ...[
+                _buildAuditRow('Total Raw Materials Stock Value:', '₹${metrics.totalStockValue.toStringAsFixed(0)}', isBold: true),
+                const SizedBox(height: 12),
+                _buildAuditRow('Total Raw Ingredients Managed:', '${metrics.totalIngredients} items'),
+                const SizedBox(height: 12),
+                _buildAuditRow('Low Stock Alerts (< Minimum Threshold):', '${metrics.lowStockCount} items', isNegative: metrics.lowStockCount > 0),
+                const SizedBox(height: 12),
+                _buildAuditRow('Recent Stock Movements Logged:', '${metrics.recentMovements.length} transactions'),
+              ] else ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildAuditRow('Total Raw Materials Stock Value:', '₹${metrics.totalStockValue.toStringAsFixed(0)}', isBold: true),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildAuditRow('Total Raw Ingredients Managed:', '${metrics.totalIngredients} items'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildAuditRow('Low Stock Alerts (< Minimum Threshold):', '${metrics.lowStockCount} items', isNegative: metrics.lowStockCount > 0),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildAuditRow('Recent Stock Movements Logged:', '${metrics.recentMovements.length} transactions'),
+                    ),
+                  ],
+                ),
+              ],
             ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAuditRow('Low Stock Alerts (< Minimum Threshold):', '${metrics.lowStockCount} items', isNegative: metrics.lowStockCount > 0),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: _buildAuditRow('Recent Stock Movements Logged:', '${metrics.recentMovements.length} transactions'),
-              ),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
